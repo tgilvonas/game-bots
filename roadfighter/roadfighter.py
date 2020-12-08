@@ -3,6 +3,7 @@ import pyautogui, os, time
 
 # path info of files:
 print(os.path.dirname(__file__))
+
 print('Hello, I am Python bot and I will try to play old RoadFighter game on NES emulator :)')
 print('Press q to start, set focus on the emulator window, and start the game :)')
 
@@ -12,8 +13,8 @@ spritesDir = scriptPath + '/sprites/'
 roadsidesDir = spritesDir + 'roadsides/'
 
 #keys:
-keyAccelerate = 'z'
-keyAccelerateMore = 'x'
+keyAccelerate='z'
+keyAccelerateMore='x'
 keyLeft='n'
 keyRight='m'
 
@@ -34,7 +35,8 @@ spritesOfRightRoadSides = [
 
 spritesOfSlowOrPassiveObjects = [
 	'car0.png',
-	'oil.png'
+	'oil.png',
+	'truck.png'
 ]
 
 spritesOfTrickyCars = [

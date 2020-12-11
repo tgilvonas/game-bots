@@ -47,8 +47,6 @@ spritesOfTrickyCars = [
 
 spriteOfTargetCar = 'target.png'
 
-#keyboard = Controller()
-
 def detectLeftRoadside():
 	leftRoadSides = []
 	leftRoadSideToReturn = 82;
@@ -126,13 +124,9 @@ def checkIfObjectDoesNotIntersectWithOtherObjects(objectToCheck, arrayOfOtherObj
 				return True
 	return False
 
-def startStopGame():
-	keyboard = Controller()
-	keyboard.press(Key.enter)
-	keyboard.release(Key.enter)
-
-def getMilliseconds():
-    return int(round(time.time() * 1000))
+def checkIfSpeedIsAbove220():
+	coordinatesOfSpeedometerPart = pyautogui.locateOnScreen(spritesDir + 'speed-above-220.png', region=(190, 96, 27, 94))
+	return (coordinatesOfSpeedometerPart != None and len(coordinatesOfSpeedometerPart) == 4)
 
 def playGame():
 	print('initialized....')
@@ -159,9 +153,12 @@ def playGame():
 
 			coordinatesOfTargetCar= detectObject(spriteOfTargetCar)
 
+			if coordinatesOfMe == None:
+				keyboard.release(keyAccelerateMore)
+
 			myCarIntersectsWithSlowOrPassiveObjects = checkIfObjectDoesNotIntersectWithOtherObjects(coordinatesOfMe, slowOrPassiveObjects)
 			if myCarIntersectsWithSlowOrPassiveObjects == True :
-				#keyboard.release(keyAccelerateMore)
+				keyboard.release(keyAccelerateMore)
 				whichRoadside = detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
 				while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), detectAGroupOfObjects(spritesOfSlowOrPassiveObjects))) :
 					if whichRoadside == 'left' :
@@ -174,7 +171,7 @@ def playGame():
 			# still repeated code by reason: I don't know what strategy should be with "tricky" cars:
 			myCarIntersectsWithTrickyCars = checkIfObjectDoesNotIntersectWithOtherObjects(coordinatesOfMe, trickyCars)
 			if myCarIntersectsWithTrickyCars == True :
-				#keyboard.release(keyAccelerateMore)
+				keyboard.release(keyAccelerateMore)
 				whichRoadside = detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
 				while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), detectAGroupOfObjects(spritesOfTrickyCars))) :
 					if whichRoadside == 'left' :
@@ -183,6 +180,11 @@ def playGame():
 						keyboard.press(keyLeft)
 				keyboard.release(keyLeft)
 				keyboard.release(keyRight)
+
+			#if coordinatesOfTargetCar != None and checkIfObjectDoesNotIntersectWithOtherObjects():
+
+			if checkIfSpeedIsAbove220() and myCarIntersectsWithSlowOrPassiveObjects == False and myCarIntersectsWithTrickyCars == False :
+				keyboard.press(keyAccelerateMore)
 
 		except Exception as e:
 			print(e)

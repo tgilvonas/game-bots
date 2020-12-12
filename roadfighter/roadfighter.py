@@ -184,7 +184,6 @@ def playGame():
 			#if coordinatesOfTargetCar != None and (checkIfObjectDoesNotIntersectWithOtherObjects(coordinatesOfTargetCar, slowOrPassiveObjects + trickyCars) == False):
 			#keyboard.release(keyAccelerateMore)
 
-
 			if checkIfSpeedIsAbove220() and myCarIntersectsWithSlowOrPassiveObjects == False and myCarIntersectsWithTrickyCars == False :
 				keyboard.press(keyAccelerateMore)
 

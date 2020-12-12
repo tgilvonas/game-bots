@@ -11,6 +11,12 @@ scriptPath = os.path.dirname(__file__)
 
 spritesDir = scriptPath + '/sprites/'
 
+#keys:
+keyAccelerate='z'
+keyAccelerateMore='x'
+keyLeft='n'
+keyRight='m'
+
 def playGame():
 	print('initialized....')
 	keyboard = Controller()

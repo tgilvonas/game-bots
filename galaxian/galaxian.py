@@ -17,8 +17,8 @@ pixelsOfEnemyGunfire = 'enemy-gunfire.png'
 
 spriteOfMySpaceship = 'me-smaller.png';
 
-scannableRegionForEnemiesAndGunfire = (2, 156, 276, 290)
-scannableRegionOfMySpaceship = (15, 248, 270, 295)
+scannableRegionForEnemiesAndGunfire = (2, 156, 276, 140)
+scannableRegionOfMySpaceship = (10, 240, 270, 60)
 
 keyShoot='z'
 keyLeft='n'
@@ -41,6 +41,11 @@ def decideToGoLeftOrRight(coordinatesOfMySpaceship, coordinatesOfEnemyGunfires, 
 			print('GOING RIGHT')
 			goRight()
 		print('GOING ANYWHERE')
+		randomSide = random.randint(0,1)
+		if randomSide == 0 :
+			goLeft()
+		else:
+			goRight()
 	return None
 
 def goLeft():

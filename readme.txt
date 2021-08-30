@@ -4,8 +4,18 @@ These scripts are adjusted to FCEUX Nintendo emulator: http://fceux.com/web/down
 
 To make scripts working:
 1. Install Python on your PC, if you don't have Python installed;
-2. Place FCEUX emulator window on very left-top corner of your screen, with approximate coordinates x=0 and y=0 (tolerance is around 20 pixels in both x and y screen coordinates);
-3. Launch the script;
-4. Press 'q' key;
-5. Set focus on emulator window and start the game;
-6. Enjoy the action and laugh from dummy game bots :)
+2. Place FCEUX emulator window on very left-top corner of your screen, with approximate coordinates x=0 and y=0 (tolerance is around 20 pixels in both x and y screen coordinates); Please take notice that y=0 means "top of the screen" in computer screen coordinates.
+3. Set the equivalents of gamepad buttons for emulator, as listed in paragraph below.
+4. Launch the script;
+5. Press 'q' key;
+6. Set focus on emulator window and start the game;
+7. Enjoy the action and laugh from dummy game bots :)
+
+Equivalents of gamepad keys:
+Button "B" - computer keyboard key 'z'
+Button "B Turbo" - computer keyboard key 'a'
+Button "A" - computer keyboard key 'x'
+Button "A Turbo" - computer keyboard key 's'
+Move left - computer keyboard key 'n'
+Move right - computer keyboard key 'm'
+Move down - computer keyboard key 'j'

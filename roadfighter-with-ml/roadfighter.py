@@ -12,7 +12,7 @@ scriptPath = os.path.dirname(__file__)
 spritesDir = scriptPath + '/sprites/'
 roadsidesDir = spritesDir + 'roadsides/'
 
-#keys:
+# keys:
 keyAccelerate='z'
 keyAccelerateMore='x'
 keyLeft='n'
@@ -46,6 +46,12 @@ spritesOfTrickyCars = [
 ]
 
 spriteOfTargetCar = 'target.png'
+
+# sprites to determine state of gameplay:
+spriteOfGameLogo = 'game-logo.png'
+
+# global "keyboard controller" object:
+keyboard = Controller()
 
 def detectLeftRoadside():
 	leftRoadSides = []
@@ -129,9 +135,7 @@ def checkIfSpeedIsAbove220():
 	return (coordinatesOfSpeedometerPart != None and len(coordinatesOfSpeedometerPart) == 4)
 
 def playGame():
-	print('initialized....')
-
-	keyboard = Controller()
+	print('initialized...')
 
 	leftRoadSide = 82
 	rightRoadSide = 290

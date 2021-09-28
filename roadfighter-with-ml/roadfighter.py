@@ -1,4 +1,5 @@
 from pynput.keyboard import Key, Listener, Controller
+from time import sleep
 import pyautogui, os, time
 
 # path info of files:
@@ -134,6 +135,10 @@ def checkIfSpeedIsAbove220():
 	coordinatesOfSpeedometerPart = pyautogui.locateOnScreen(spritesDir + 'speed-above-220.png', region=(190, 96, 27, 94))
 	return (coordinatesOfSpeedometerPart != None and len(coordinatesOfSpeedometerPart) == 4)
 
+def detectGameLogo():
+	coordinatesOfLogo = pyautogui.locateOnScreen(spritesDir + spriteOfGameLogo, region=(3, 68, 240, 140))
+	return coordinatesOfLogo
+
 def playGame():
 	print('initialized...')
 
@@ -142,6 +147,21 @@ def playGame():
 	whichRoadside = 'left'
 	slowOrPassiveObjects = []
 	trickyCars = []
+
+	try:
+		while detectGameLogo() == None:
+			print(detectGameLogo())
+			print('Detecting logo in game intro...')
+
+		keyboard.press('r')
+		sleep(1)
+		keyboard.release('r')
+		sleep(5)
+		keyboard.press('r')
+		sleep(1)
+		keyboard.release('r')
+	except Exception as e:
+		print(e)
 
 	while 1==1 :
 		try:

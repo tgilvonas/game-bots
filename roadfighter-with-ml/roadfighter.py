@@ -1,6 +1,6 @@
+import pyautogui, os, time, sqlite3
 from pynput.keyboard import Key, Listener, Controller
 from time import sleep
-import pyautogui, os, time
 
 # path info of files:
 print(os.path.dirname(__file__))
@@ -12,6 +12,13 @@ scriptPath = os.path.dirname(__file__)
 
 spritesDir = scriptPath + '/sprites/'
 roadsidesDir = spritesDir + 'roadsides/'
+
+databaseConnection = None
+try:
+    databaseConnection = sqlite3.connect(scriptPath + '/hypothesies.sqlite')
+except Exception as e:
+	print(e)
+
 
 # keys:
 keyAccelerate='z'
@@ -157,7 +164,6 @@ def playGame():
 		trickyCars = []
 
 		try:
-
 			while detectGameLogo() == None:
 				print(detectGameLogo())
 				print('Detecting logo in game intro...')

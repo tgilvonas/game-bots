@@ -6,7 +6,7 @@ import pyautogui, os, time
 print(os.path.dirname(__file__))
 
 print('Hello, I am Python bot and I will try to play old RoadFighter game on NES emulator :)')
-print('Press q to start, set focus on the emulator window, and start the game :)')
+print("Press 'q' to start, set focus on the emulator window, and start the game :)")
 
 scriptPath = os.path.dirname(__file__)
 
@@ -43,13 +43,15 @@ spritesOfSlowOrPassiveObjects = [
 spritesOfTrickyCars = [
 	'car1.png',
 	'car2.png',
-	'car3.png'
+	'car3.png',
+	'car4.png'
 ]
 
 spriteOfTargetCar = 'target.png'
 
 # sprites to determine state of gameplay:
 spriteOfGameLogo = 'game-logo.png'
+spriteZeroFuel = 'zero-fuel.png'
 
 # global "keyboard controller" object:
 keyboard = Controller()
@@ -139,71 +141,77 @@ def detectGameLogo():
 	coordinatesOfLogo = pyautogui.locateOnScreen(spritesDir + spriteOfGameLogo, region=(3, 68, 240, 140))
 	return coordinatesOfLogo
 
+def detectIfFuelLevelIsZero():
+	coordinatesOfZeroFuelSprite = pyautogui.locateOnScreen(spritesDir + spriteZeroFuel, region=(200, 190, 60, 50))
+	return coordinatesOfZeroFuelSprite
+
 def playGame():
 	print('initialized...')
 
-	leftRoadSide = 82
-	rightRoadSide = 290
-	whichRoadside = 'left'
-	slowOrPassiveObjects = []
-	trickyCars = []
-
-	try:
-		while detectGameLogo() == None:
-			print(detectGameLogo())
-			print('Detecting logo in game intro...')
-
-		keyboard.press('r')
-		sleep(1)
-		keyboard.release('r')
-		sleep(5)
-		keyboard.press('r')
-		sleep(1)
-		keyboard.release('r')
-	except Exception as e:
-		print(e)
-
 	while 1==1 :
+
+		leftRoadSide = 82
+		rightRoadSide = 290
+		whichRoadside = 'left'
+		slowOrPassiveObjects = []
+		trickyCars = []
+
 		try:
+
+			while detectGameLogo() == None:
+				print(detectGameLogo())
+				print('Detecting logo in game intro...')
+
+			keyboard.press('r')
+			sleep(1)
+			keyboard.release('r')
+			sleep(3)
+			keyboard.press('r')
+			sleep(1)
+			keyboard.release('r')
+
 			keyboard.press(keyAccelerate)
 
-			leftRoadSide = detectLeftRoadside()
-			rightRoadSide = detectRightRoadSide()
+			sleep(9)
 
-			coordinatesOfMe = detectObject(spriteOfMe)
+			while detectIfFuelLevelIsZero() == None:
+				leftRoadSide = detectLeftRoadside()
+				rightRoadSide = detectRightRoadSide()
 
-			slowOrPassiveObjects = detectAGroupOfObjects(spritesOfSlowOrPassiveObjects)
-			trickyCars = detectAGroupOfObjects(spritesOfTrickyCars)
+				coordinatesOfMe = detectObject(spriteOfMe)
 
-			coordinatesOfTargetCar= detectObject(spriteOfTargetCar)
+				slowOrPassiveObjects = detectAGroupOfObjects(spritesOfSlowOrPassiveObjects)
+				trickyCars = detectAGroupOfObjects(spritesOfTrickyCars)
 
-			if coordinatesOfMe == None:
-				keyboard.release(keyAccelerateMore)
+				coordinatesOfTargetCar= detectObject(spriteOfTargetCar)
 
-			myCarIntersectsWithSlowOrPassiveObjects = checkIfObjectDoesNotIntersectWithOtherObjects(coordinatesOfMe, slowOrPassiveObjects)
-			if myCarIntersectsWithSlowOrPassiveObjects == True :
-				keyboard.release(keyAccelerateMore)
-				whichRoadside = detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
-				while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), detectAGroupOfObjects(spritesOfSlowOrPassiveObjects))) :
-					if whichRoadside == 'left' :
-						keyboard.press(keyRight)
-					else :
-						keyboard.press(keyLeft)
-				keyboard.release(keyLeft)
-				keyboard.release(keyRight)
+				if coordinatesOfMe == None:
+					keyboard.release(keyAccelerateMore)
 
-			# still repeated code by reason: I don't know what strategy should be with "tricky" cars:
-			myCarIntersectsWithTrickyCars = checkIfObjectDoesNotIntersectWithOtherObjects(coordinatesOfMe, trickyCars)
-			if myCarIntersectsWithTrickyCars == True :
-				keyboard.release(keyAccelerateMore)
-				whichRoadside = detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
-				while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), detectAGroupOfObjects(spritesOfTrickyCars))) :
-					if whichRoadside == 'left' :
-						keyboard.press(keyRight)
-					else :
-						keyboard.press(keyLeft)
-				keyboard.release(keyLeft)
-				keyboard.release(keyRight)
+				myCarIntersectsWithSlowOrPassiveObjects = checkIfObjectDoesNotIntersectWithOtherObjects(coordinatesOfMe, slowOrPassiveObjects)
+				if myCarIntersectsWithSlowOrPassiveObjects == True :
+					keyboard.release(keyAccelerateMore)
+					whichRoadside = detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
+					while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), detectAGroupOfObjects(spritesOfSlowOrPassiveObjects))) :
+						if whichRoadside == 'left' :
+							keyboard.press(keyRight)
+						else :
+							keyboard.press(keyLeft)
+					keyboard.release(keyLeft)
+					keyboard.release(keyRight)
+
+				# still repeated code by reason: I don't know what strategy should be with "tricky" cars:
+				myCarIntersectsWithTrickyCars = checkIfObjectDoesNotIntersectWithOtherObjects(coordinatesOfMe, trickyCars)
+				if myCarIntersectsWithTrickyCars == True :
+					keyboard.release(keyAccelerateMore)
+					whichRoadside = detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
+					while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), detectAGroupOfObjects(spritesOfTrickyCars))) :
+						if whichRoadside == 'left' :
+							keyboard.press(keyRight)
+						else :
+							keyboard.press(keyLeft)
+					keyboard.release(keyLeft)
+					keyboard.release(keyRight)
 
 			#if checkIfSpeedIsAbove220() and myCarIntersectsWithSlowOrPassiveObjects == False and myCarIntersectsWithTrickyCars == False :
 			#	keyboard.press(keyAccelerateMore)

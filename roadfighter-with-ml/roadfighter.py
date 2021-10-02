@@ -246,11 +246,15 @@ def logKey(key, action):
 def logObjectsOnTrack(groupOfObjects):
 	global momentOfTime
 	global dataOfAllObjects
-	if (groupOfObjects != None):
+	groupOfObjectsToLog = []
+	if (groupOfObjects != None and len(groupOfObjects)>0):
+		for objectOfSomething in groupOfObjects:
+			# giving a tolerance and reserve, making objects "wider":
+			groupOfObjectsToLog.append([objectOfSomething[0] - 10, objectOfSomething[1], objectOfSomething[2] + 20, objectOfSomething[3]])
 		waitTime = time.time_ns()-momentOfTime
 		groupOfObjectsAtTheMoment = {
 			'wait': waitTime,
-			'objects': groupOfObjects
+			'objects': groupOfObjectsToLog
 		}
 		dataOfAllObjects['t'+str(waitTime)] = groupOfObjectsAtTheMoment
 		momentOfTime=time.time_ns()

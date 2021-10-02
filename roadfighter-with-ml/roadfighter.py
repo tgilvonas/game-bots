@@ -1,4 +1,4 @@
-import pyautogui, os, time, sqlite3
+import json, pyautogui, os, sqlite3, time
 from pynput.keyboard import Key, Listener, Controller
 from time import sleep
 
@@ -13,21 +13,32 @@ scriptPath = os.path.dirname(__file__)
 spritesDir = scriptPath + '/sprites/'
 roadsidesDir = spritesDir + 'roadsides/'
 
-databaseConnection = None
+db = None
 try:
-    databaseConnection = sqlite3.connect(scriptPath + '/hypothesies.sqlite')
+    db = sqlite3.connect(scriptPath + '/hypothesies.sqlite')
 except Exception as e:
 	print(e)
 
+#dbConnectionCursor = db.cursor()
+#for row in dbConnectionCursor.execute('SELECT * FROM hypothesies WHERE id < 3'):
+#    print(row)
 
 # keys:
 keyAccelerate='z'
 keyAccelerateMore='x'
 keyLeft='n'
 keyRight='m'
+keyStartGame='y'
+
+#for ML:
+keysHistory={}
+dataOfAllSlowOrPassiveObjects={}
+hypothesisEvaluation=0
+logHypothesis = True
+momentOfTime=0
 
 # dimesions of scannable screen region
-scannableScreenRegion = (32, 36, 160, 240)
+scannableScreenRegion = (32, 40, 160, 222)
 
 spriteOfMe = 'me.png'
 
@@ -59,6 +70,7 @@ spriteOfTargetCar = 'target.png'
 # sprites to determine state of gameplay:
 spriteOfGameLogo = 'game-logo.png'
 spriteZeroFuel = 'zero-fuel.png'
+spriteOfProgressIndicator = 'progress-indicator.png'
 
 # global "keyboard controller" object:
 keyboard = Controller()
@@ -152,75 +164,111 @@ def detectIfFuelLevelIsZero():
 	coordinatesOfZeroFuelSprite = pyautogui.locateOnScreen(spritesDir + spriteZeroFuel, region=(200, 190, 60, 50))
 	return coordinatesOfZeroFuelSprite
 
-def playGame():
+def resetInitialData():
+	leftRoadSide = 82
+	rightRoadSide = 150
+	whichRoadside = 'left'
+	slowOrPassiveObjects = []
+	trickyCars = []
+	hypothesisEvaluation=0
+	logHypothesis = True
+
+def goThroughGameInterface():
+	keyboard.press(keyStartGame)
+	sleep(1)
+	keyboard.release(keyStartGame)
+	sleep(3)
+	keyboard.press(keyStartGame)
+	sleep(1)
+	keyboard.release(keyStartGame)
+
+def evaluateHypothesisByProgressIndicator():
+	hypothesisEvaluation = 0
+	positionOfProgressIndicator = pyautogui.locateOnScreen(spritesDir + spriteOfProgressIndicator, region=(10, 50, 25, 220))
+	if (positionOfProgressIndicator != None) :
+		hypothesisEvaluation = 300 - positionOfProgressIndicator[1]
+	return hypothesisEvaluation
+
+def writeHypothesisToDatabase():
+	return None
+
+def logKey():
+	return None
+
+def logObjectsOnTrack():
+	return None
+
+def tryToPlayByKeysHistory():
+	return None
+
+def tryToPlayByObjectsData():
+	return None
+
+def tryToPlayUnknownPartOfCourse():
+	while detectIfFuelLevelIsZero() == None:
+		leftRoadSide = detectLeftRoadside()
+		rightRoadSide = detectRightRoadSide()
+
+		slowOrPassiveObjects = detectAGroupOfObjects(spritesOfSlowOrPassiveObjects)
+		trickyCars = detectAGroupOfObjects(spritesOfTrickyCars)
+
+		coordinatesOfTargetCar= detectObject(spriteOfTargetCar)
+
+		coordinatesOfMe = detectObject(spriteOfMe)
+		if coordinatesOfMe == None:
+			print('CRASHED or collided with objects. Writing hypothesis to DB.')
+			evaluateHypothesisByProgressIndicator()
+			logHypothesis = False
+			#keyboard.release(keyAccelerateMore)
+
+		myCarIntersectsWithSlowOrPassiveObjects = checkIfObjectDoesNotIntersectWithOtherObjects(coordinatesOfMe, slowOrPassiveObjects)
+		if myCarIntersectsWithSlowOrPassiveObjects == True :
+			keyboard.release(keyAccelerateMore)
+			whichRoadside = detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
+			while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), detectAGroupOfObjects(spritesOfSlowOrPassiveObjects))) :
+				if whichRoadside == 'left' :
+					keyboard.press(keyRight)
+				else :
+					keyboard.press(keyLeft)
+			keyboard.release(keyLeft)
+			keyboard.release(keyRight)
+
+		# still repeated code by reason: I don't know what strategy should be with "tricky" cars:
+		myCarIntersectsWithTrickyCars = checkIfObjectDoesNotIntersectWithOtherObjects(coordinatesOfMe, trickyCars)
+		if myCarIntersectsWithTrickyCars == True :
+			keyboard.release(keyAccelerateMore)
+			whichRoadside = detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
+			while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), detectAGroupOfObjects(spritesOfTrickyCars))) :
+				if whichRoadside == 'left' :
+					keyboard.press(keyRight)
+				else :
+					keyboard.press(keyLeft)
+			keyboard.release(keyLeft)
+			keyboard.release(keyRight)
+
+		#if checkIfSpeedIsAbove220() and myCarIntersectsWithSlowOrPassiveObjects == False and myCarIntersectsWithTrickyCars == False :
+		#	keyboard.press(keyAccelerateMore)
+	return None
+
+def tryToPlayGameInfiniteLoop():
 	print('initialized...')
 
 	while 1==1 :
-
-		leftRoadSide = 82
-		rightRoadSide = 290
-		whichRoadside = 'left'
-		slowOrPassiveObjects = []
-		trickyCars = []
 
 		try:
 			while detectGameLogo() == None:
 				print(detectGameLogo())
 				print('Detecting logo in game intro...')
 
-			keyboard.press('r')
-			sleep(1)
-			keyboard.release('r')
-			sleep(3)
-			keyboard.press('r')
-			sleep(1)
-			keyboard.release('r')
+			resetInitialData()
+
+			goThroughGameInterface()
 
 			keyboard.press(keyAccelerate)
-
 			sleep(9)
 
-			while detectIfFuelLevelIsZero() == None:
-				leftRoadSide = detectLeftRoadside()
-				rightRoadSide = detectRightRoadSide()
-
-				coordinatesOfMe = detectObject(spriteOfMe)
-
-				slowOrPassiveObjects = detectAGroupOfObjects(spritesOfSlowOrPassiveObjects)
-				trickyCars = detectAGroupOfObjects(spritesOfTrickyCars)
-
-				coordinatesOfTargetCar= detectObject(spriteOfTargetCar)
-
-				if coordinatesOfMe == None:
-					keyboard.release(keyAccelerateMore)
-
-				myCarIntersectsWithSlowOrPassiveObjects = checkIfObjectDoesNotIntersectWithOtherObjects(coordinatesOfMe, slowOrPassiveObjects)
-				if myCarIntersectsWithSlowOrPassiveObjects == True :
-					keyboard.release(keyAccelerateMore)
-					whichRoadside = detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
-					while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), detectAGroupOfObjects(spritesOfSlowOrPassiveObjects))) :
-						if whichRoadside == 'left' :
-							keyboard.press(keyRight)
-						else :
-							keyboard.press(keyLeft)
-					keyboard.release(keyLeft)
-					keyboard.release(keyRight)
-
-				# still repeated code by reason: I don't know what strategy should be with "tricky" cars:
-				myCarIntersectsWithTrickyCars = checkIfObjectDoesNotIntersectWithOtherObjects(coordinatesOfMe, trickyCars)
-				if myCarIntersectsWithTrickyCars == True :
-					keyboard.release(keyAccelerateMore)
-					whichRoadside = detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
-					while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), detectAGroupOfObjects(spritesOfTrickyCars))) :
-						if whichRoadside == 'left' :
-							keyboard.press(keyRight)
-						else :
-							keyboard.press(keyLeft)
-					keyboard.release(keyLeft)
-					keyboard.release(keyRight)
-
-			#if checkIfSpeedIsAbove220() and myCarIntersectsWithSlowOrPassiveObjects == False and myCarIntersectsWithTrickyCars == False :
-			#	keyboard.press(keyAccelerateMore)
+			momentOfTime = time.time_ns()
+			tryToPlayUnknownPartOfCourse();
 
 		except Exception as e:
 			print(e)
@@ -228,7 +276,7 @@ def playGame():
 
 def on_press(key):
     if str(key)=="'q'":
-        playGame()
+        tryToPlayGameInfiniteLoop()
     if key == Key.esc:
         return False
 

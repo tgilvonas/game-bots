@@ -13,13 +13,14 @@ scriptPath = os.path.dirname(__file__)
 spritesDir = scriptPath + '/sprites/'
 roadsidesDir = spritesDir + 'roadsides/'
 
-db = None
+databaseFile = '/hypothesies.sqlite'
+
 try:
-    db = sqlite3.connect(scriptPath + '/hypothesies.sqlite')
+    dbConnection = sqlite3.connect(scriptPath + '/hypothesies.sqlite')
 except Exception as e:
 	print(e)
 
-#dbConnectionCursor = db.cursor()
+#dbConnectionCursor = dbConnection.cursor()
 #for row in dbConnectionCursor.execute('SELECT * FROM hypothesies WHERE id < 3'):
 #    print(row)
 
@@ -32,10 +33,11 @@ keyStartGame='y'
 
 #for ML:
 keysHistory={}
-dataOfAllSlowOrPassiveObjects={}
+dataOfAllObjects={}
 hypothesisEvaluation=0
 logHypothesis = True
 momentOfTime=0
+keyNumber=0
 
 # dimesions of scannable screen region
 scannableScreenRegion = (32, 40, 160, 222)
@@ -76,6 +78,9 @@ spriteOfProgressIndicator = 'progress-indicator.png'
 keyboard = Controller()
 
 def detectLeftRoadside():
+	global scannableScreenRegion
+	global roadsidesDir
+	global spritesOfLeftRoadSides
 	leftRoadSides = []
 	leftRoadSideToReturn = 82;
 	for roadside in spritesOfLeftRoadSides:
@@ -93,6 +98,9 @@ def detectLeftRoadside():
 	return leftRoadSideToReturn
 
 def detectRightRoadSide():
+	global scannableScreenRegion
+	global roadsidesDir
+	global spritesOfRightRoadSides
 	rightRoadSides = []
 	rightRoadSideToReturn = 290
 	for roadside in spritesOfRightRoadSides:
@@ -111,6 +119,8 @@ def detectRightRoadSide():
 	return rightRoadSideToReturn
 
 def detectObject(sprite):
+	global scannableScreenRegion
+	global spritesDir
 	coordinatesOfObject = pyautogui.locateOnScreen(spritesDir + sprite, region=scannableScreenRegion)
 	print('Detected single object: ')
 	print(sprite)
@@ -118,6 +128,8 @@ def detectObject(sprite):
 	return coordinatesOfObject
 
 def detectAGroupOfObjects(arrayOfSprites):
+	global scannableScreenRegion
+	global spritesDir
 	groupOfObjects = []
 	for sprite in arrayOfSprites:
 		groupOfObjects = groupOfObjects + list(pyautogui.locateAllOnScreen(spritesDir + sprite, region=scannableScreenRegion))
@@ -157,14 +169,25 @@ def checkIfSpeedIsAbove220():
 	return (coordinatesOfSpeedometerPart != None and len(coordinatesOfSpeedometerPart) == 4)
 
 def detectGameLogo():
+	global spritesDir
+	global spriteOfGameLogo
 	coordinatesOfLogo = pyautogui.locateOnScreen(spritesDir + spriteOfGameLogo, region=(3, 68, 240, 140))
 	return coordinatesOfLogo
 
 def detectIfFuelLevelIsZero():
+	global spritesDir
+	global spriteZeroFuel
 	coordinatesOfZeroFuelSprite = pyautogui.locateOnScreen(spritesDir + spriteZeroFuel, region=(200, 190, 60, 50))
 	return coordinatesOfZeroFuelSprite
 
 def resetInitialData():
+	global leftRoadSide
+	global rightRoadSide
+	global whichRoadside
+	global slowOrPassiveObjects
+	global trickyCars
+	global hypothesisEvaluation
+	global logHypothesis
 	leftRoadSide = 82
 	rightRoadSide = 150
 	whichRoadside = 'left'
@@ -175,28 +198,62 @@ def resetInitialData():
 
 def goThroughGameInterface():
 	keyboard.press(keyStartGame)
-	sleep(1)
+	sleep(0.5)
 	keyboard.release(keyStartGame)
-	sleep(3)
+	sleep(2)
 	keyboard.press(keyStartGame)
-	sleep(1)
+	sleep(0.5)
 	keyboard.release(keyStartGame)
 
 def evaluateHypothesisByProgressIndicator():
-	hypothesisEvaluation = 0
+	global hypothesisEvaluation
 	positionOfProgressIndicator = pyautogui.locateOnScreen(spritesDir + spriteOfProgressIndicator, region=(10, 50, 25, 220))
 	if (positionOfProgressIndicator != None) :
 		hypothesisEvaluation = 300 - positionOfProgressIndicator[1]
 	return hypothesisEvaluation
 
 def writeHypothesisToDatabase():
-	return None
+	global hypothesisEvaluation
+	global keysHistory
+	global hypothesisEvaluation
+	global dataOfAllObjects
+	global databaseFile
+	dbConnection = sqlite3.connect(scriptPath + databaseFile)
+	allEvaluationsOfHypothesies = {}
+	allEvaluationsOfHypothesies['e1'] = hypothesisEvaluation
+	dbConnectionCursor = dbConnection.cursor()
+	dbConnectionCursor.execute("INSERT INTO hypothesies (parent_id, keys_history, hypothesis, evaluations, average_evaluation, passive_objects, passive_objects_processed) VALUES (0, ?, NULL, ?, ?, ?, NULL)", (json.dumps(keysHistory), json.dumps(allEvaluationsOfHypothesies), hypothesisEvaluation, json.dumps(dataOfAllObjects)))
+	dbConnection.commit()
+	dbConnectionCursor.close()
+	dbConnection.close()
 
-def logKey():
-	return None
+def logKey(key, action):
+	global momentOfTime
+	global keysHistory
+	global keyNumber
+	keyHappened = {
+        'action': '',
+        'key': '',
+        'wait': 0
+    }
+	keyHappened['action']=action
+	keyHappened['key']=str(key)
+	keyHappened['wait']=time.time_ns()-momentOfTime
+	momentOfTime=time.time_ns()
+	keysHistory['key'+str(keyNumber)]=keyHappened
+	keyNumber+=1
 
-def logObjectsOnTrack():
-	return None
+def logObjectsOnTrack(groupOfObjects):
+	global momentOfTime
+	global dataOfAllObjects
+	if (groupOfObjects != None):
+		waitTime = time.time_ns()-momentOfTime
+		groupOfObjectsAtTheMoment = {
+			'wait': waitTime,
+			'objects': groupOfObjects
+		}
+		dataOfAllObjects['t'+str(waitTime)] = groupOfObjectsAtTheMoment
+		momentOfTime=time.time_ns()
 
 def tryToPlayByKeysHistory():
 	return None
@@ -205,19 +262,28 @@ def tryToPlayByObjectsData():
 	return None
 
 def tryToPlayUnknownPartOfCourse():
+	global logHypothesis
+	global spritesOfSlowOrPassiveObjects
+	global spritesOfTrickyCars
+	global spriteOfMe
+	global keyLeft
+	global keyRight
 	while detectIfFuelLevelIsZero() == None:
 		leftRoadSide = detectLeftRoadside()
 		rightRoadSide = detectRightRoadSide()
 
 		slowOrPassiveObjects = detectAGroupOfObjects(spritesOfSlowOrPassiveObjects)
+		logObjectsOnTrack(slowOrPassiveObjects)
 		trickyCars = detectAGroupOfObjects(spritesOfTrickyCars)
+		logObjectsOnTrack(trickyCars)
 
 		coordinatesOfTargetCar= detectObject(spriteOfTargetCar)
 
 		coordinatesOfMe = detectObject(spriteOfMe)
-		if coordinatesOfMe == None:
+		if (coordinatesOfMe == None and logHypothesis == True):
 			print('CRASHED or collided with objects. Writing hypothesis to DB.')
 			evaluateHypothesisByProgressIndicator()
+			writeHypothesisToDatabase()
 			logHypothesis = False
 			#keyboard.release(keyAccelerateMore)
 
@@ -228,10 +294,14 @@ def tryToPlayUnknownPartOfCourse():
 			while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), detectAGroupOfObjects(spritesOfSlowOrPassiveObjects))) :
 				if whichRoadside == 'left' :
 					keyboard.press(keyRight)
+					logKey(keyRight, 'pressed')
 				else :
 					keyboard.press(keyLeft)
+					logKey(keyLeft, 'pressed')
 			keyboard.release(keyLeft)
+			logKey(keyLeft, 'released')
 			keyboard.release(keyRight)
+			logKey(keyRight, 'released')
 
 		# still repeated code by reason: I don't know what strategy should be with "tricky" cars:
 		myCarIntersectsWithTrickyCars = checkIfObjectDoesNotIntersectWithOtherObjects(coordinatesOfMe, trickyCars)
@@ -244,13 +314,19 @@ def tryToPlayUnknownPartOfCourse():
 				else :
 					keyboard.press(keyLeft)
 			keyboard.release(keyLeft)
+			logKey(keyLeft, 'released')
 			keyboard.release(keyRight)
+			logKey(keyRight, 'released')
 
 		#if checkIfSpeedIsAbove220() and myCarIntersectsWithSlowOrPassiveObjects == False and myCarIntersectsWithTrickyCars == False :
 		#	keyboard.press(keyAccelerateMore)
 	return None
 
 def tryToPlayGameInfiniteLoop():
+	
+	global momentOfTime
+	global keyAccelerate
+
 	print('initialized...')
 
 	while 1==1 :
@@ -259,15 +335,16 @@ def tryToPlayGameInfiniteLoop():
 			while detectGameLogo() == None:
 				print(detectGameLogo())
 				print('Detecting logo in game intro...')
+			print('Logo in game intro detected!')
 
 			resetInitialData()
+			momentOfTime=time.time_ns()
 
 			goThroughGameInterface()
 
 			keyboard.press(keyAccelerate)
 			sleep(9)
 
-			momentOfTime = time.time_ns()
 			tryToPlayUnknownPartOfCourse();
 
 		except Exception as e:

@@ -15,15 +15,6 @@ roadsidesDir = spritesDir + 'roadsides/'
 
 databaseFile = '/hypothesies.sqlite'
 
-try:
-    dbConnection = sqlite3.connect(scriptPath + '/hypothesies.sqlite')
-except Exception as e:
-	print(e)
-
-#dbConnectionCursor = dbConnection.cursor()
-#for row in dbConnectionCursor.execute('SELECT * FROM hypothesies WHERE id < 3'):
-#    print(row)
-
 # keys:
 keyAccelerate='z'
 keyAccelerateMore='x'
@@ -38,6 +29,7 @@ hypothesisEvaluation=0
 logHypothesis = True
 momentOfTime=0
 keyNumber=0
+parentHypothesisId=0
 
 # dimesions of scannable screen region
 scannableScreenRegion = (32, 40, 160, 222)
@@ -217,15 +209,30 @@ def writeHypothesisToDatabase():
 	global keysHistory
 	global hypothesisEvaluation
 	global dataOfAllObjects
+	global parentHypothesisId
 	global databaseFile
 	dbConnection = sqlite3.connect(scriptPath + databaseFile)
 	allEvaluationsOfHypothesies = {}
 	allEvaluationsOfHypothesies['e1'] = hypothesisEvaluation
 	dbConnectionCursor = dbConnection.cursor()
-	dbConnectionCursor.execute("INSERT INTO hypothesies (parent_id, keys_history, hypothesis, evaluations, average_evaluation, passive_objects, passive_objects_processed) VALUES (0, ?, NULL, ?, ?, ?, NULL)", (json.dumps(keysHistory), json.dumps(allEvaluationsOfHypothesies), hypothesisEvaluation, json.dumps(dataOfAllObjects)))
+	dbConnectionCursor.execute("INSERT INTO hypothesies (parent_id, keys_history, hypothesis, evaluations, average_evaluation, passive_objects, passive_objects_processed) VALUES (?, ?, NULL, ?, ?, ?, NULL)", (parentHypothesisId, json.dumps(keysHistory), json.dumps(allEvaluationsOfHypothesies), hypothesisEvaluation, json.dumps(dataOfAllObjects)))
 	dbConnection.commit()
 	dbConnectionCursor.close()
 	dbConnection.close()
+
+def getBestHypothesisFromDatabase():
+	global dataOfAllObjects
+	global databaseFile
+	hypothesis = {}
+	dbConnection = sqlite3.connect(scriptPath + databaseFile)
+	dbConnectionCursor = dbConnection.cursor()
+	for row in dbConnectionCursor.execute('SELECT * FROM hypothesies ORDER BY average_evaluation DESC LIMIT 1'):
+		hypothesis = row
+	dbConnectionCursor.close()
+	dbConnection.close()
+	print('Hypothesis:')
+	print(hypothesis)
+	return hypothesis
 
 def logKey(key, action):
 	global momentOfTime
@@ -258,12 +265,6 @@ def logObjectsOnTrack(groupOfObjects):
 		}
 		dataOfAllObjects['t'+str(waitTime)] = groupOfObjectsAtTheMoment
 		momentOfTime=time.time_ns()
-
-def tryToPlayByKeysHistory():
-	return None
-
-def tryToPlayByObjectsData():
-	return None
 
 def tryToPlayUnknownPartOfCourse():
 	global logHypothesis
@@ -326,6 +327,18 @@ def tryToPlayUnknownPartOfCourse():
 		#	keyboard.press(keyAccelerateMore)
 	return None
 
+def tryToPlayByKeysHistory():
+	return None
+
+def tryToPlayByObjectsData():
+	global dataOfAllObjects
+	global keyLeft
+	global keyRight
+	hypothesis = getBestHypothesisFromDatabase()
+	dataOfAllObjects = hypothesis[6]
+	#to do: loop over data of objects
+	return None
+
 def tryToPlayGameInfiniteLoop():
 	
 	global momentOfTime
@@ -349,7 +362,7 @@ def tryToPlayGameInfiniteLoop():
 			keyboard.press(keyAccelerate)
 			sleep(9)
 
-			tryToPlayUnknownPartOfCourse();
+			tryToPlayUnknownPartOfCourse()
 
 		except Exception as e:
 			print(e)

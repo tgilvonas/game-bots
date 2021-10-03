@@ -226,7 +226,8 @@ def getBestHypothesisFromDatabase():
 	hypothesis = {}
 	dbConnection = sqlite3.connect(scriptPath + databaseFile)
 	dbConnectionCursor = dbConnection.cursor()
-	hypothesis = dbConnectionCursor.fetchone('SELECT * FROM hypothesies ORDER BY average_evaluation DESC LIMIT 1')
+	dbConnectionCursor.execute('SELECT * FROM hypothesies ORDER BY average_evaluation DESC LIMIT 1')
+	hypothesis = dbConnectionCursor.fetchone()
 	dbConnectionCursor.close()
 	dbConnection.close()
 	print('Hypothesis:')
@@ -339,7 +340,7 @@ def tryToPlayByObjectsData():
 	timeAfterIteration = 0
 	hypothesis = getBestHypothesisFromDatabase()
 	if (hypothesis != None and len(hypothesis)>=7):
-		dataOfAllObjects = hypothesis[6]
+		dataOfAllObjects = json.loads(hypothesis[6])
 		for historyItem in dataOfAllObjects:
 			timeBeforeIteration = time.time_ns()
 			coordinatesOfMe = detectObject(spriteOfMe)
@@ -370,12 +371,6 @@ def tryToPlayByObjectsData():
 			sleep((historyItem['wait'] - (timeAfterIteration - timeBeforeIteration)) / (1000 * 1000 * 1000))
 	return None
 
-def detectGameLogo():
-	while detectGameLogo() == None:
-		print(detectGameLogo())
-		print('Detecting logo in game intro...')
-	print('Logo in game intro detected!')
-	return True
 
 def tryToPlayGameInfiniteLoop():
 	
@@ -388,7 +383,10 @@ def tryToPlayGameInfiniteLoop():
 	while 1==1 :
 
 		try:
-			detectGameLogo()
+			while detectGameLogo() == None:
+				print(detectGameLogo())
+				print('Detecting logo in game intro...')
+			print('Logo in game intro detected!')
 
 			resetInitialData()
 			momentOfTime=time.time_ns()

@@ -226,8 +226,7 @@ def getBestHypothesisFromDatabase():
 	hypothesis = {}
 	dbConnection = sqlite3.connect(scriptPath + databaseFile)
 	dbConnectionCursor = dbConnection.cursor()
-	for row in dbConnectionCursor.execute('SELECT * FROM hypothesies ORDER BY average_evaluation DESC LIMIT 1'):
-		hypothesis = row
+	hypothesis = dbConnectionCursor.fetchone('SELECT * FROM hypothesies ORDER BY average_evaluation DESC LIMIT 1')
 	dbConnectionCursor.close()
 	dbConnection.close()
 	print('Hypothesis:')
@@ -266,7 +265,7 @@ def logObjectsOnTrack(groupOfObjects):
 		dataOfAllObjects['t'+str(waitTime)] = groupOfObjectsAtTheMoment
 		momentOfTime=time.time_ns()
 
-def tryToPlayUnknownPartOfCourse():
+def tryToPlayUnknownPartOfGame():
 	global logHypothesis
 	global spritesOfSlowOrPassiveObjects
 	global spritesOfTrickyCars
@@ -334,25 +333,62 @@ def tryToPlayByObjectsData():
 	global dataOfAllObjects
 	global keyLeft
 	global keyRight
+	global spriteOfMe
+	global logHypothesis
+	timeBeforeIteration = 0
+	timeAfterIteration = 0
 	hypothesis = getBestHypothesisFromDatabase()
-	dataOfAllObjects = hypothesis[6]
-	#to do: loop over data of objects
+	if (hypothesis != None and len(hypothesis)>=7):
+		dataOfAllObjects = hypothesis[6]
+		for historyItem in dataOfAllObjects:
+			timeBeforeIteration = time.time_ns()
+			coordinatesOfMe = detectObject(spriteOfMe)
+			if coordinatesOfMe == None:
+				logHypothesis = False
+				print('CRASHED')
+				return None
+			leftRoadSide = detectLeftRoadside()
+			rightRoadSide = detectRightRoadSide()
+			whichRoadside = detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
+			while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), historyItem['objects'])) :
+				if whichRoadside == 'left' :
+					keyboard.press(keyRight)
+					logKey(keyRight, 'pressed')
+				else :
+					keyboard.press(keyLeft)
+					logKey(keyLeft, 'pressed')
+			keyboard.release(keyLeft)
+			logKey(keyLeft, 'released')
+			keyboard.release(keyRight)
+			logKey(keyRight, 'released')
+			coordinatesOfMe = detectObject(spriteOfMe)
+			if coordinatesOfMe == None:
+				logHypothesis = False
+				print('CRASHED')
+				return None
+			timeAfterIteration = time.time_ns()
+			sleep((historyItem['wait'] - (timeAfterIteration - timeBeforeIteration)) / (1000 * 1000 * 1000))
 	return None
+
+def detectGameLogo():
+	while detectGameLogo() == None:
+		print(detectGameLogo())
+		print('Detecting logo in game intro...')
+	print('Logo in game intro detected!')
+	return True
 
 def tryToPlayGameInfiniteLoop():
 	
 	global momentOfTime
 	global keyAccelerate
+	global logHypothesis
 
 	print('initialized...')
 
 	while 1==1 :
 
 		try:
-			while detectGameLogo() == None:
-				print(detectGameLogo())
-				print('Detecting logo in game intro...')
-			print('Logo in game intro detected!')
+			detectGameLogo()
 
 			resetInitialData()
 			momentOfTime=time.time_ns()
@@ -362,7 +398,9 @@ def tryToPlayGameInfiniteLoop():
 			keyboard.press(keyAccelerate)
 			sleep(9)
 
-			tryToPlayUnknownPartOfCourse()
+			tryToPlayByObjectsData()
+			tryToPlayUnknownPartOfGame()
+			logHypothesis = True
 
 		except Exception as e:
 			print(e)

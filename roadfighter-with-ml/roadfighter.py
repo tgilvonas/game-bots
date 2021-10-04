@@ -1,4 +1,4 @@
-import json, pyautogui, os, sqlite3, time
+import json, pyautogui, os, sqlite3, sys, time, traceback
 from pynput.keyboard import Key, Listener, Controller
 from time import sleep
 
@@ -341,7 +341,7 @@ def tryToPlayByObjectsData():
 	hypothesis = getBestHypothesisFromDatabase()
 	if (hypothesis != None and len(hypothesis)>=7):
 		dataOfAllObjects = json.loads(hypothesis[6])
-		for historyItem in dataOfAllObjects:
+		for objectsHistoryIndex in dataOfAllObjects:
 			timeBeforeIteration = time.time_ns()
 			coordinatesOfMe = detectObject(spriteOfMe)
 			if coordinatesOfMe == None:
@@ -351,7 +351,7 @@ def tryToPlayByObjectsData():
 			leftRoadSide = detectLeftRoadside()
 			rightRoadSide = detectRightRoadSide()
 			whichRoadside = detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
-			while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), historyItem['objects'])) :
+			while ( checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), dataOfAllObjects[objectsHistoryIndex]['objects']) ) :
 				if whichRoadside == 'left' :
 					keyboard.press(keyRight)
 					logKey(keyRight, 'pressed')
@@ -368,7 +368,7 @@ def tryToPlayByObjectsData():
 				print('CRASHED')
 				return None
 			timeAfterIteration = time.time_ns()
-			sleep((historyItem['wait'] - (timeAfterIteration - timeBeforeIteration)) / (1000 * 1000 * 1000))
+			sleep((dataOfAllObjects[objectsHistoryIndex]['wait'] - (timeAfterIteration - timeBeforeIteration)) / (1000 * 1000 * 1000))
 	return None
 
 
@@ -389,12 +389,14 @@ def tryToPlayGameInfiniteLoop():
 			print('Logo in game intro detected!')
 
 			resetInitialData()
-			momentOfTime=time.time_ns()
+			#momentOfTime=time.time_ns()
 
 			goThroughGameInterface()
 
 			keyboard.press(keyAccelerate)
 			sleep(9)
+
+			momentOfTime=time.time_ns()
 
 			tryToPlayByObjectsData()
 			tryToPlayUnknownPartOfGame()
@@ -402,6 +404,7 @@ def tryToPlayGameInfiniteLoop():
 
 		except Exception as e:
 			print(e)
+			print(traceback.format_exc())
 
 
 def on_press(key):

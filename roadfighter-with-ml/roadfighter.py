@@ -30,6 +30,7 @@ logHypothesis = True
 momentOfTime=0
 keyNumber=0
 parentHypothesisId=0
+previousObjectsOnTrack=[]
 
 # dimesions of scannable screen region
 scannableScreenRegion = (32, 40, 160, 222)
@@ -250,14 +251,18 @@ def logKey(key, action):
 	keysHistory['key'+str(keyNumber)]=keyHappened
 	keyNumber+=1
 
-def logObjectsOnTrack(groupOfObjects):
+def logObjectsOnTrack(groupOfObjects, tricky=False):
 	global momentOfTime
 	global dataOfAllObjects
 	groupOfObjectsToLog = []
+	if tricky:
+		reserve=10
+	else:
+		reserve=30
 	if (groupOfObjects != None and len(groupOfObjects)>0):
 		for objectOfSomething in groupOfObjects:
 			# giving a tolerance and reserve, making objects "wider":
-			groupOfObjectsToLog.append([objectOfSomething[0] - 10, objectOfSomething[1], objectOfSomething[2] + 20, objectOfSomething[3]])
+			groupOfObjectsToLog.append([objectOfSomething[0] - reserve, objectOfSomething[1], objectOfSomething[2] + (2*reserve), objectOfSomething[3]])
 		waitTime = time.time_ns()-momentOfTime
 		groupOfObjectsAtTheMoment = {
 			'wait': waitTime,
@@ -278,8 +283,8 @@ def tryToPlayUnknownPartOfGame():
 		rightRoadSide = detectRightRoadSide()
 
 		slowOrPassiveObjects = detectAGroupOfObjects(spritesOfSlowOrPassiveObjects)
-		logObjectsOnTrack(slowOrPassiveObjects)
-		trickyCars = detectAGroupOfObjects(spritesOfTrickyCars)
+		logObjectsOnTrack(slowOrPassiveObjects, False)
+		trickyCars = detectAGroupOfObjects(spritesOfTrickyCars, True)
 		logObjectsOnTrack(trickyCars)
 
 		coordinatesOfTargetCar= detectObject(spriteOfTargetCar)
@@ -327,7 +332,41 @@ def tryToPlayUnknownPartOfGame():
 		#	keyboard.press(keyAccelerateMore)
 	return None
 
+def getListOfObjectsWithPreviousObjectsOnTrack(currentObjects):
+	global previousObjectsOnTrack
+	for currentObject in currentObjects:
+		previousObjectsOnTrack.append(currentObject)
+	if (len(previousObjectsOnTrack)>8):
+		return previousObjectsOnTrack[-8:]
+	return previousObjectsOnTrack
+
+def decideToTurnLeftOrRight(coordinatesOfMe, leftRoadSide, rightRoadSide, objects):
+	listOfEmptyPixels = [1] * 270
+	for x in range(leftRoadSide, rightRoadSide):
+  		listOfEmptyPixels[x] = 0
+	for currentObject in objects:
+		for x in range(currentObject[0], currentObject[0]+currentObject[2]):
+			listOfEmptyPixels[x] = 1
+	leftSideOfMe = coordinatesOfMe[0];
+	rightSideOfMe = coordinatesOfMe[0] + coordinatesOfMe[2]
+	distanceLeft=0
+	distanceRight=0
+	x = rightSideOfMe
+	while x<rightRoadSide:
+		while listOfEmptyPixels[x]==1:
+			distanceRight+=1
+		x+=1
+	x = leftSideOfMe
+	while x>leftRoadSide:
+		while listOfEmptyPixels[x]==1:
+			distanceLeft+=1
+		x-=1
+	if distanceLeft<distanceRight:
+		return 'left'
+	return 'right'
+
 def tryToPlayByKeysHistory():
+	# code has not been written yet
 	return None
 
 def tryToPlayByObjectsData():
@@ -350,8 +389,9 @@ def tryToPlayByObjectsData():
 				return None
 			leftRoadSide = detectLeftRoadside()
 			rightRoadSide = detectRightRoadSide()
-			whichRoadside = detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
-			while ( checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), dataOfAllObjects[objectsHistoryIndex]['objects']) ) :
+			objectsOnTrack = getListOfObjectsWithPreviousObjectsOnTrack(dataOfAllObjects[objectsHistoryIndex]['objects'])
+			whichRoadside = decideToTurnLeftOrRight(coordinatesOfMe, leftRoadSide, rightRoadSide, objectsOnTrack)
+			while (checkIfObjectDoesNotIntersectWithOtherObjects(detectObject(spriteOfMe), objectsOnTrack)) :
 				if whichRoadside == 'left' :
 					keyboard.press(keyRight)
 					logKey(keyRight, 'pressed')

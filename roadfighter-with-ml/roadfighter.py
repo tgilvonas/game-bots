@@ -284,8 +284,8 @@ def tryToPlayUnknownPartOfGame():
 
 		slowOrPassiveObjects = detectAGroupOfObjects(spritesOfSlowOrPassiveObjects)
 		logObjectsOnTrack(slowOrPassiveObjects, False)
-		trickyCars = detectAGroupOfObjects(spritesOfTrickyCars, True)
-		logObjectsOnTrack(trickyCars)
+		trickyCars = detectAGroupOfObjects(spritesOfTrickyCars)
+		logObjectsOnTrack(trickyCars, True)
 
 		coordinatesOfTargetCar= detectObject(spriteOfTargetCar)
 
@@ -336,8 +336,8 @@ def getListOfObjectsWithPreviousObjectsOnTrack(currentObjects):
 	global previousObjectsOnTrack
 	for currentObject in currentObjects:
 		previousObjectsOnTrack.append(currentObject)
-	if (len(previousObjectsOnTrack)>8):
-		return previousObjectsOnTrack[-8:]
+	if (len(previousObjectsOnTrack)>6):
+		return previousObjectsOnTrack[-6:]
 	return previousObjectsOnTrack
 
 def decideToTurnLeftOrRight(coordinatesOfMe, leftRoadSide, rightRoadSide, objects):
@@ -352,14 +352,12 @@ def decideToTurnLeftOrRight(coordinatesOfMe, leftRoadSide, rightRoadSide, object
 	distanceLeft=0
 	distanceRight=0
 	x = rightSideOfMe
-	while x<rightRoadSide:
-		while listOfEmptyPixels[x]==1:
-			distanceRight+=1
+	while x<rightRoadSide and listOfEmptyPixels[x]==1:
+		distanceRight+=1
 		x+=1
 	x = leftSideOfMe
-	while x>leftRoadSide:
-		while listOfEmptyPixels[x]==1:
-			distanceLeft+=1
+	while x>leftRoadSide and listOfEmptyPixels[x]==1:
+		distanceLeft+=1
 		x-=1
 	if distanceLeft<distanceRight:
 		return 'left'
@@ -408,7 +406,8 @@ def tryToPlayByObjectsData():
 				print('CRASHED')
 				return None
 			timeAfterIteration = time.time_ns()
-			sleep((dataOfAllObjects[objectsHistoryIndex]['wait'] - (timeAfterIteration - timeBeforeIteration)) / (1000 * 1000 * 1000))
+			# - (timeAfterIteration - timeBeforeIteration)
+			sleep((dataOfAllObjects[objectsHistoryIndex]['wait']) / (1000 * 1000 * 1000))
 	return None
 
 

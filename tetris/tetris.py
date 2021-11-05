@@ -9,23 +9,37 @@ print('Press q to start, set focus on the emulator window, and start the game :)
 
 scriptPath = os.path.dirname(__file__)
 
-spritesDir = scriptPath + '/sprites/'
-
 #keys:
-keyAccelerate='z'
-keyAccelerateMore='x'
+keyRotate='z'
 keyLeft='n'
 keyRight='m'
+keyPutDown='j'
+
+keyboard = Controller()
+
+widthOfWell = 80
+heightOfWell = 161
+wellLeft = 0
+wellTop = 0
+
+regionToTakeScreenshot = (0, 0, 81, 161)
+
+def determineCoordinatesOfBricksWell():
+	coordinatesOfBottomFrame = pyautogui.locateOnScreen(scriptPath + '/' + 'bottom-of-well.png', region=(0, 0, 250, 270))
+	if coordinatesOfBottomFrame != None:
+		print('Bottom of well detected')
+		wellLeft = coordinatesOfBottomFrame[0] + 3;
+		wellTop = coordinatesOfBottomFrame[1] - 4 - heightOfWell;
+	return None
 
 def playGame():
 	print('initialized....')
-	keyboard = Controller()
-	while 1==1 :
-		try:
-			# next line should be deleted, and the code of game bot should be written:
-			print('It works')
-		except Exception as e:
-			print(e)
+	try:
+		determineCoordinatesOfBricksWell()
+		while 1==1 :
+			return None
+	except Exception as e:
+		print(e)
 
 def on_press(key):
     if str(key)=="'q'":

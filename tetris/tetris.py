@@ -18,9 +18,7 @@ keyPutDown='j'
 keyboard = Controller()
 
 widthOfWell = 80
-heightOfWell = 161
-wellLeft = 0
-wellTop = 0
+heightOfWell = 160
 
 regionToTakeScreenshot = (0, 0, 81, 161)
 
@@ -28,14 +26,18 @@ def determineCoordinatesOfBricksWell():
 	coordinatesOfBottomFrame = pyautogui.locateOnScreen(scriptPath + '/' + 'bottom-of-well.png', region=(0, 0, 250, 270))
 	if coordinatesOfBottomFrame != None:
 		print('Bottom of well detected')
-		wellLeft = coordinatesOfBottomFrame[0] + 3;
-		wellTop = coordinatesOfBottomFrame[1] - 4 - heightOfWell;
-	return None
+		wellLeft = coordinatesOfBottomFrame[0] + 3
+		wellTop = coordinatesOfBottomFrame[1] - 3 - heightOfWell
+	return (wellLeft, wellTop, widthOfWell, heightOfWell)
+
+def takeScreenshot(screenshotRegion):
+	image = pyautogui.screenshot('screenshot.png', region=screenshotRegion)
 
 def playGame():
 	print('initialized....')
 	try:
-		determineCoordinatesOfBricksWell()
+		coordinatesOfBricksWell = determineCoordinatesOfBricksWell()
+		takeScreenshot(coordinatesOfBricksWell)
 		while 1==1 :
 			return None
 	except Exception as e:

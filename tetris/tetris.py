@@ -1,4 +1,5 @@
 from pynput.keyboard import Key, Listener, Controller
+from PIL import Image
 import pyautogui, os, time
 
 # path info of files:
@@ -20,7 +21,7 @@ keyboard = Controller()
 widthOfWell = 80
 heightOfWell = 160
 
-regionToTakeScreenshot = (0, 0, 81, 161)
+screenshotImg = 'screenshot.png'
 
 def determineCoordinatesOfBricksWell():
 	coordinatesOfBottomFrame = pyautogui.locateOnScreen(scriptPath + '/' + 'bottom-of-well.png', region=(0, 0, 250, 270))
@@ -31,13 +32,35 @@ def determineCoordinatesOfBricksWell():
 	return (wellLeft, wellTop, widthOfWell, heightOfWell)
 
 def takeScreenshot(screenshotRegion):
-	image = pyautogui.screenshot('screenshot.png', region=screenshotRegion)
+	image = pyautogui.screenshot(screenshotImg, region=screenshotRegion)
+
+def getPixel(x, y):
+	imageObject = Image.open(scriptPath + '/' + screenshotImg).convert('RGB')
+	r, g, b = imageObject.getpixel((x, y))
+	if r != 0 or g != 0 or b != 0:
+		return 1
+	else:
+		return 0
+
+def scanScreenshot():
+	posX = 4
+	posY = 4
+	stepX = 8
+	stepY = 8
+	while posY < heightOfWell:
+		while posX < widthOfWell:
+			result = getPixel(posX, posY)
+			print(result)
+			posX+=stepX
+		posY+=stepY
+		posX=4
 
 def playGame():
 	print('initialized....')
 	try:
 		coordinatesOfBricksWell = determineCoordinatesOfBricksWell()
 		takeScreenshot(coordinatesOfBricksWell)
+		scanScreenshot()
 		while 1==1 :
 			return None
 	except Exception as e:

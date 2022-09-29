@@ -47,6 +47,7 @@ def scanScreenshot():
 	posY = 4
 	stepX = 8
 	stepY = 8
+	wellMatrix = [[0]*10]*20
 	while posY < heightOfWell:
 		while posX < widthOfWell:
 			result = getPixel(posX, posY)

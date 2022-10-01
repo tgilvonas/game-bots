@@ -2,10 +2,7 @@ from pynput.keyboard import Key, Listener, Controller
 from PIL import Image
 import pyautogui, os, time
 
-# path info of files:
-print(os.path.dirname(__file__))
-
-print('Hello, I am Python bot and I will try to play old Tetris game on NES emulator :)')
+print('Hello, I am Python bot and I will try to play Tetris game on NES emulator :)')
 print('Press q to start, set focus on the emulator window, and start the game :)')
 
 scriptPath = os.path.dirname(__file__)
@@ -29,7 +26,8 @@ def determineCoordinatesOfBricksWell():
 		print('Bottom of well detected')
 		wellLeft = coordinatesOfBottomFrame[0] + 3
 		wellTop = coordinatesOfBottomFrame[1] - 3 - heightOfWell
-	return (wellLeft, wellTop, widthOfWell, heightOfWell)
+		return (wellLeft, wellTop, widthOfWell, heightOfWell)
+	return None
 
 def takeScreenshot(screenshotRegion):
 	image = pyautogui.screenshot(screenshotImg, region=screenshotRegion)
@@ -48,20 +46,27 @@ def scanScreenshot():
 	stepX = 8
 	stepY = 8
 	wellMatrix = [[0]*10]*20
-	while posY < heightOfWell:
+	matrixX = 0
+	matrixY = 0
+	while posY < heightOfWell and matrixY <= 19 :
 		while posX < widthOfWell:
 			result = getPixel(posX, posY)
-			print(result)
 			posX+=stepX
+			wellMatrix[matrixY][matrixX]=result
+			matrixX+=1
 		posY+=stepY
 		posX=4
+		matrixX=0
+		matrixY+=1
+	return wellMatrix
 
 def playGame():
 	print('initialized....')
 	try:
 		coordinatesOfBricksWell = determineCoordinatesOfBricksWell()
 		takeScreenshot(coordinatesOfBricksWell)
-		scanScreenshot()
+		wellMatrix = scanScreenshot()
+		print(wellMatrix)
 		while 1==1 :
 			return None
 	except Exception as e:

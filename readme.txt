@@ -9,7 +9,7 @@ To make scripts working:
 4. Launch the script;
 5. Press 'q' key;
 6. Set focus on emulator window and start the game;
-7. Enjoy the action and laugh from dummy game bots :)
+7. Enjoy the action and laugh at dummy game bots :)
 
 Equivalents of gamepad keys:
 Button "B" - computer keyboard key 'z'
@@ -19,4 +19,6 @@ Button "A Turbo" - computer keyboard key 's'
 Move left - computer keyboard key 'n'
 Move right - computer keyboard key 'm'
 Move down - computer keyboard key 'j'
+Move up - computer keyboard key 'h'
 Start/pause - computer keyboard key 'Enter'
+Select - computer keyboard key 'b'

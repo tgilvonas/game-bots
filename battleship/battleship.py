@@ -51,12 +51,10 @@ class BattleshipBot:
 	def placeShipRandomly(self):
 		listOfKeys = self.generateListOfKeysToPlaceShip()
 		for keyboardKey in listOfKeys:
-			print(keyboardKey)
 			self.keyboard.press(keyboardKey)
 			time.sleep(0.5)
 			self.keyboard.release(keyboardKey)
 		self.pressKeyShoot()
-		print('Placing ship randomly')
 
 	def playGame(self):
 		print('initialized....')

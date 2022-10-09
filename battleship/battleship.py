@@ -12,6 +12,14 @@ class BattleshipBot:
 	dirOfGameplaySprites = dirOfSprites + 'gameplay/'
 	dirOfWeaponsSprites = dirOfSprites + 'weapons/'
 
+	crosshairSprite = dirOfFieldsSprites + 'crosshair.png'
+	untouchedFieldSprite = dirOfFieldsSprites + 'untouched.png'
+
+	scannableScreenRegion = (0, 40, 300, 280)
+
+	battlefieldCoordsGrid = []
+	fieldsStates = []
+
 	keyLeft='n'
 	keyRight='m'
 	keyDown='j'
@@ -31,12 +39,12 @@ class BattleshipBot:
 
 	def pressStart(self):
 		self.keyboard.press(self.keyStartGame)
-		time.sleep(0.5)
+		time.sleep(0.02)
 		self.keyboard.release(self.keyStartGame)
 
 	def pressKeyShoot(self):
 		self.keyboard.press(self.keyShoot)
-		time.sleep(0.5)
+		time.sleep(0.02)
 		self.keyboard.release(self.keyShoot)
 
 	def generateListOfKeysToPlaceShip(self):
@@ -52,9 +60,24 @@ class BattleshipBot:
 		listOfKeys = self.generateListOfKeysToPlaceShip()
 		for keyboardKey in listOfKeys:
 			self.keyboard.press(keyboardKey)
-			time.sleep(0.5)
+			time.sleep(0.02)
 			self.keyboard.release(keyboardKey)
 		self.pressKeyShoot()
+
+	def initBattlefieldCoordsGrid(self):
+		coordsOfCrosshair = pyautogui.locateOnScreen(self.crosshairSprite)
+		coordsOfAllFields = list(pyautogui.locateAllOnScreen(self.untouchedFieldSprite, region=self.scannableScreenRegion))
+		coordsOfAllFields.insert(0, coordsOfCrosshair)
+		for i in range(0, 96, 12):
+			x = i
+			self.battlefieldCoordsGrid.append(coordsOfAllFields[x:x+12])
+		for listItem in self.battlefieldCoordsGrid:
+			print(listItem)
+		self.initFieldsStates()
+
+	def initFieldsStates(self):
+		self.fieldsStates = [['u']*12]*8
+		print(self.fieldsStates)
 
 	def playGame(self):
 		print('initialized....')
@@ -63,12 +86,14 @@ class BattleshipBot:
 				while self.detectMenu() == None:
 					print('Detecting game menu...')
 				print('Game menu was detected! Giving you time to set focus on emulator window!')
-				time.sleep(10)
+				time.sleep(5)
 				self.pressStart()
-				time.sleep(10)
+				time.sleep(5)
 				while self.detectFinalShipSetup() == None:
 					self.placeShipRandomly()
 				self.pressKeyShoot()
+				time.sleep(5)
+				self.initBattlefieldCoordsGrid()
 				return False
 			except Exception as e:
 				print(e)

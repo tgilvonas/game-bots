@@ -1,6 +1,8 @@
 from pynput.keyboard import Key, Listener, Controller
 import pyautogui, os, time, random
 
+from weapons.WeaponGeneric import WeaponGeneric
+
 print('Hello, I am Python bot and I will try to play Battleship game on NES emulator :)')
 print('Press q to start, set focus on the emulator window, and start the game :)')
 
@@ -94,6 +96,8 @@ class BattleshipBot:
 				self.pressKeyShoot()
 				time.sleep(5)
 				self.initBattlefieldCoordsGrid()
+				weaponGeneric = WeaponGeneric()
+				weaponGeneric.shoot()
 				return False
 			except Exception as e:
 				print(e)

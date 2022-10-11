@@ -3,6 +3,8 @@ import pyautogui, os, time, random
 
 class WeaponGeneric:
 	
+	weaponsSpritesPath = ''
+
 	scannableScreenRegion = (0, 40, 300, 280)
 
 	keyLeft='n'
@@ -15,6 +17,9 @@ class WeaponGeneric:
 
 	def __init__(self):
 		print('Weapon initiated')
-
-	def shoot(self):
-		print('Boom!')
+		appPath = os.path.dirname(__file__)
+		appPath.replace("\\weapons", "")
+		appPath.replace("/weapons", "")
+		print('App path:')
+		print(appPath)
+		self.weaponsSpritesPath = appPath + 'sprites' + os.sep + 'weapons' + os.sep

@@ -2,6 +2,9 @@ from pynput.keyboard import Key, Listener, Controller
 import pyautogui, os, time, random
 
 from weapons.Weapon1 import Weapon1
+from weapons.Weapon2 import Weapon2
+from weapons.Weapon3 import Weapon3
+from weapons.Weapon4 import Weapon4
 
 print('Hello, I am Python bot and I will try to play Battleship game on NES emulator :)')
 print('Press q to start, set focus on the emulator window, and start the game :)')
@@ -81,6 +84,16 @@ class BattleshipBot:
 		self.fieldsStates = [['u']*12]*8
 		print(self.fieldsStates)
 
+	def useSuperWeapons(self):
+		weapon1 = Weapon1()
+		weapon1.shoot()
+		weapon2 = Weapon2()
+		weapon2.shoot()
+		weapon3 = Weapon3()
+		weapon3.shoot()
+		weapon4 = Weapon4()
+		weapon4.shoot()
+
 	def playGame(self):
 		print('initialized....')
 		while 1==1 :
@@ -97,8 +110,7 @@ class BattleshipBot:
 				self.pressKeyShoot()
 				time.sleep(5)
 				self.initBattlefieldCoordsGrid()
-				weapon1 = Weapon1()
-				weapon1.shoot()
+				self.useSuperWeapons()
 				return False
 			except Exception as e:
 				print(e)

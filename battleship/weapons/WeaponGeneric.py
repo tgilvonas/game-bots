@@ -12,14 +12,35 @@ class WeaponGeneric:
 	keyDown='j'
 	keyUp='h'
 	keySelect='b'
+	keyShoot='x'
+
+	pressReleaseDelay = 5
 
 	keyboard = Controller()
 
 	def __init__(self):
-		print('Weapon initiated')
 		appPath = os.path.dirname(__file__)
-		appPath.replace("\\weapons", "")
-		appPath.replace("/weapons", "")
-		print('App path:')
-		print(appPath)
-		self.weaponsSpritesPath = appPath + 'sprites' + os.sep + 'weapons' + os.sep
+		appPathArray = appPath.split(os.sep)
+		appPathArray.pop()
+		appPath = os.sep.join(appPathArray)
+		self.weaponsSpritesPath = appPath + os.sep + 'sprites' + os.sep + 'weapons' + os.sep
+
+	def pressSelect(self):
+		self.keyboard.press(self.keySelect)
+		time.sleep(0.1)
+		self.keyboard.release(self.keySelect)
+
+	def moveCrosshairsRight(self):
+		self.keyboard.press(self.keyRight)
+		time.sleep(self.pressReleaseDelay)
+		self.keyboard.release(self.keyRight)
+
+	def moveCrosshairsDown(self):
+		self.keyboard.press(self.keyDown)
+		time.sleep(self.pressReleaseDelay)
+		self.keyboard.release(self.keyDown)
+
+	def pressFire(self):
+		self.keyboard.press(self.keyShoot)
+		time.sleep(1)
+		self.keyboard.release(self.keyShoot)

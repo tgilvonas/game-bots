@@ -3,12 +3,13 @@ import pyautogui, os, time, random
 
 from weapons.WeaponGeneric import WeaponGeneric
 
-class Weapon1(WeaponGeneric):
+class Weapon2(WeaponGeneric):
 	
 	def shoot(self):
-		weaponSprite = self.weaponsSpritesPath + 'weapon1.png'
+		weaponSprite = self.weaponsSpritesPath + 'weapon2.png'
 		while pyautogui.locateOnScreen(weaponSprite) == None:
 			self.pressSelect()
 			print('Selecting weapon...')
+		self.moveCrosshairsRight()
 		self.pressFire()
 		print('Boom!')

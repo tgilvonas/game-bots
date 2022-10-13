@@ -11,6 +11,8 @@ class Weapon4(WeaponGeneric):
 			self.pressSelect()
 			print('Selecting weapon...')
 		self.moveCrosshairsRight()
+		time.sleep(self.delayAfterCrosshairMovement)
 		self.moveCrosshairsDown()
+		time.sleep(self.delayAfterCrosshairMovement)
 		self.pressFire()
 		print('Boom!')

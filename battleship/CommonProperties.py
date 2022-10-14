@@ -27,3 +27,8 @@ class CommonProperties:
 		self.keyboard.press(self.keyStartGame)
 		time.sleep(0.02)
 		self.keyboard.release(self.keyStartGame)
+
+	def pressDown(self):
+		self.keyboard.press(self.keyDown)
+		time.sleep(0.02)
+		self.keyboard.release(self.keyDown)

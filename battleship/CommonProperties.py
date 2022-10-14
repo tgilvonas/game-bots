@@ -8,6 +8,7 @@ class CommonProperties:
 	dirOfFieldsSprites = dirOfSprites + 'fields/'
 	dirOfGameplaySprites = dirOfSprites + 'gameplay/'
 	dirOfWeaponsSprites = dirOfSprites + 'weapons/'
+	dirOfFieldsNumbersSprites = dirOfSprites + 'numbers/'
 
 	scannableScreenRegion = (0, 40, 300, 280)
 

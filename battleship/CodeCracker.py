@@ -8,8 +8,19 @@ class CodeCracker(CommonProperties):
 	def detectSelectedProperMenuItem(self):
 		return pyautogui.locateOnScreen(self.dirOfGameplaySprites + 'code.png')
 
+	# beginning to crack the code from '1000', flipping the string of numbers:
 	def convertNumberToCode(self, i):
-		print(i)
+		oldUnits = i % 10
+		oldDozens = i % 100 // 10
+		oldHundreds = i % 1000 // 100
+		oldThousands = i // 1000
+		newUnits = oldThousands
+		newDozens = oldHundreds * 10
+		newHundreds = oldDozens * 100
+		newThousands = oldUnits * 1000
+		code = newThousands + newHundreds + newDozens + newUnits
+		print(code)
+		return [newThousands, newHundreds, newDozens, newUnits]
 
 	def crackTheCodes(self):
 		print('Code cracker initiated! Giving you time to set focus on emulator window!')
@@ -22,10 +33,10 @@ class CodeCracker(CommonProperties):
 				i=1
 				while i<=9999:
 					self.pressStart()
-					self.convertNumberToCode(i)
+					code = self.convertNumberToCode(i)
+					
 					self.pressStart()
 					i+=1
-					
 				return False
 			except Exception as e:
 				print(e)

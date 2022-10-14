@@ -15,10 +15,10 @@ class CodeCracker(CommonProperties):
 		oldHundreds = i % 1000 // 100
 		oldThousands = i // 1000
 		newUnits = oldThousands
-		newDozens = oldHundreds * 10
-		newHundreds = oldDozens * 100
-		newThousands = oldUnits * 1000
-		code = newThousands + newHundreds + newDozens + newUnits
+		newDozens = oldHundreds
+		newHundreds = oldDozens
+		newThousands = oldUnits
+		code = newThousands * 1000 + newHundreds * 100 + newDozens * 10 + newUnits
 		print(code)
 		return [newThousands, newHundreds, newDozens, newUnits]
 
@@ -34,7 +34,10 @@ class CodeCracker(CommonProperties):
 				while i<=9999:
 					self.pressStart()
 					code = self.convertNumberToCode(i)
-					
+					for codeNumber in code:
+						while pyautogui.locateAllOnScreen(self.dirOfNumbersSprites+'number'+str(codeNumber)+'.png', region=self.scannableScreenRegion) == None:
+							self.pressDown()
+						self.pressRight()
 					self.pressStart()
 					i+=1
 				return False

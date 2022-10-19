@@ -6,8 +6,6 @@ from CodeCracker import CodeCracker
 
 print('Hello, I am Python bot and I will try to play Battleship game on NES emulator, using CommanderOfTheFleet or CodeCracker classes, optionally :)')
 print('Press q to start game, set focus on the emulator window, and start the game :)')
-print('OR')
-print('Press w to crack codes of game :)')
 
 def on_press(key):
 	if str(key)=="'q'":

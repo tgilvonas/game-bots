@@ -61,7 +61,8 @@ class CommanderOfTheFleet(CommonProperties):
 
 	def initFieldsStates(self):
 		self.fieldsStates = [['u']*12]*8
-		print(self.fieldsStates)
+		for row in self.fieldsStates:
+			print(row)
 
 	def useSuperWeapons(self):
 		weapon1 = Weapon1()
@@ -74,7 +75,6 @@ class CommanderOfTheFleet(CommonProperties):
 		weapon4.shoot()
 
 	def playGame(self):
-		print('initialized....')
 		while 1==1 :
 			try:
 				while self.detectMenu() == None:

@@ -4,7 +4,7 @@ import pyautogui, os, time, random
 from CommanderOfTheFleet import CommanderOfTheFleet
 from CodeCracker import CodeCracker
 
-print('Hello, I am Python bot and I will try to play Battleship game on NES emulator, using CommanderOfTheFleet or CodeCracker classes, optionally :)')
+print('Hello, I am Python bot and I will try to play Battleship game on NES emulator :)')
 print('Press q to start game, set focus on the emulator window, and start the game :)')
 
 def on_press(key):

@@ -14,11 +14,34 @@ class CommanderOfTheFleet(CommonProperties):
 		return super().__new__(cls)
 
 	def __init__(self):
-		self.crosshairSprite = self.dirOfFieldsSprites + 'crosshair.png'
+		self.initialCrosshairSprite = self.dirOfFieldsSprites + 'crosshair-untouched.png'
 		self.untouchedFieldSprite = self.dirOfFieldsSprites + 'untouched.png'
 
 	battlefieldCoordsGrid = []
 	fieldsStates = []
+
+	spritesOfFields = {
+		'hit': [
+			'crosshair-hit.png',
+			'hit.png'
+		],
+		'miss': [
+			'crosshair-miss.png',
+			'miss.png'
+		],
+		'untouched': [
+			'crosshair-untouched.png',
+			'untouched.png'
+		],
+		'sunk': [
+			'sunk.png'
+		]
+	}
+	spritesOfCrosshairs = [
+		'crosshair-hit.png',
+		'crosshair-miss.png',
+		'crosshair-untouched.png'
+	]
 
 	def detectMenu(self):
 		return pyautogui.locateOnScreen(self.dirOfGameplaySprites + 'start.png')
@@ -49,7 +72,7 @@ class CommanderOfTheFleet(CommonProperties):
 		self.pressKeyShoot()
 
 	def initBattlefieldCoordsGrid(self):
-		coordsOfCrosshair = pyautogui.locateOnScreen(self.crosshairSprite)
+		coordsOfCrosshair = pyautogui.locateOnScreen(self.initialCrosshairSprite)
 		coordsOfAllFields = list(pyautogui.locateAllOnScreen(self.untouchedFieldSprite, region=self.scannableScreenRegion))
 		coordsOfAllFields.insert(0, coordsOfCrosshair)
 		for i in range(0, 96, 12):
@@ -63,6 +86,23 @@ class CommanderOfTheFleet(CommonProperties):
 		self.fieldsStates = [['u']*12]*8
 		for row in self.fieldsStates:
 			print(row)
+
+	def updateCurrentSituationInBattlefield(self):
+		x=0
+		y=0
+		for field in self.battlefieldCoordsGrid:
+			for fieldType in self.spritesOfFields.keys():
+				for sprite in self.spritesOfFields[fieldType]:
+					coordsOfDetectedField = pyautogui.locateOnScreen(self.initialCrosshairSprite, region=(field[0], field[1], 16, 16))
+					if coordsOfDetectedField != None:
+						self.fieldsStates[y][x] = fieldType[0]
+			if x>11:
+				x=0
+				y+=1
+			else:
+				x+=1
+		for row in self.fieldsStates:
+			printx(row)
 
 	def useSuperWeapons(self):
 		weapon1 = Weapon1()
@@ -90,6 +130,7 @@ class CommanderOfTheFleet(CommonProperties):
 				time.sleep(5)
 				self.initBattlefieldCoordsGrid()
 				self.useSuperWeapons()
+				self.updateCurrentSituationInBattlefield()
 				return False
 			except Exception as e:
 				print(e)

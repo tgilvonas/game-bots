@@ -1,5 +1,5 @@
-from pynput.keyboard import Key, Listener, Controller
-import pyautogui, os, time, random
+from pynput.keyboard import Controller, Key, Listener
+import os, pyautogui, random, sys, time, traceback
 
 from CommonProperties import CommonProperties
 
@@ -43,6 +43,8 @@ class CommanderOfTheFleet(CommonProperties):
 		'crosshair-untouched.png'
 	]
 
+	scannableScreenRegionForBattlefield = (0, 40, 300, 180)
+
 	def detectMenu(self):
 		return pyautogui.locateOnScreen(self.dirOfGameplaySprites + 'start.png')
 
@@ -73,11 +75,8 @@ class CommanderOfTheFleet(CommonProperties):
 
 	def initBattlefieldCoordsGrid(self):
 		coordsOfCrosshair = pyautogui.locateOnScreen(self.initialCrosshairSprite)
-		coordsOfAllFields = list(pyautogui.locateAllOnScreen(self.untouchedFieldSprite, region=self.scannableScreenRegion))
-		coordsOfAllFields.insert(0, coordsOfCrosshair)
-		for i in range(0, 96, 12):
-			x = i
-			self.battlefieldCoordsGrid.append(coordsOfAllFields[x:x+12])
+		self.battlefieldCoordsGrid = list(pyautogui.locateAllOnScreen(self.untouchedFieldSprite, region=self.scannableScreenRegionForBattlefield))
+		self.battlefieldCoordsGrid.insert(0, coordsOfCrosshair)
 		for listItem in self.battlefieldCoordsGrid:
 			print(listItem)
 		self.initFieldsStates()
@@ -91,18 +90,24 @@ class CommanderOfTheFleet(CommonProperties):
 		x=0
 		y=0
 		for field in self.battlefieldCoordsGrid:
+			# y>7 is to prevent fatal error "index out of range", 
+			# but it was also eliminated by defining new scannable screen region,
+			# and fake empty field sprite from weapon indicator is no longer detected
+			if y>7:
+				break
 			for fieldType in self.spritesOfFields.keys():
 				for sprite in self.spritesOfFields[fieldType]:
-					coordsOfDetectedField = pyautogui.locateOnScreen(self.initialCrosshairSprite, region=(field[0], field[1], 16, 16))
+					coordsOfDetectedField = pyautogui.locateOnScreen(self.dirOfFieldsSprites + sprite, region=(field[0], field[1], 16, 16))
 					if coordsOfDetectedField != None:
 						self.fieldsStates[y][x] = fieldType[0]
-			if x>11:
+			if x>=11:
 				x=0
 				y+=1
 			else:
 				x+=1
+		print('Fields states initialized')
 		for row in self.fieldsStates:
-			printx(row)
+			print(row)
 
 	def useSuperWeapons(self):
 		weapon1 = Weapon1()
@@ -134,3 +139,6 @@ class CommanderOfTheFleet(CommonProperties):
 				return False
 			except Exception as e:
 				print(e)
+				raise
+				#print(sys.exc_info()[2], 'Sorry I mean line...', traceback.tb_lineno(sys.exc_info()[2]))
+				return False

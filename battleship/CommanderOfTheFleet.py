@@ -18,6 +18,7 @@ class CommanderOfTheFleet(CommonProperties):
 		self.untouchedFieldSprite = self.dirOfFieldsSprites + 'untouched.png'
 
 	battlefieldCoordsGrid = []
+	normalizedBattlefieldCoordsGrid = []
 	fieldsStates = []
 
 	spritesOfFields = {
@@ -88,17 +89,20 @@ class CommanderOfTheFleet(CommonProperties):
 		x=0
 		self.fieldsStates = []
 		rowOfFields = []
+		rowOfBattlefieldCoordsGrid = []
 		for field in self.battlefieldCoordsGrid:
 			for fieldType in self.spritesOfFields.keys():
 				for sprite in self.spritesOfFields[fieldType]:
 					coordsOfDetectedField = pyautogui.locateOnScreen(self.dirOfFieldsSprites + sprite, region=(field[0], field[1], 16, 16))
 					if coordsOfDetectedField != None:
-						print(fieldType[0]+': '+str(field[0])+', '+str(field[1]))
 						rowOfFields.append(fieldType[0])
+						rowOfBattlefieldCoordsGrid.append(coordsOfDetectedField)
 			if x>=11:
 				x=0
 				self.fieldsStates.append(rowOfFields)
+				self.normalizedBattlefieldCoordsGrid.append(coordsOfDetectedField)
 				rowOfFields = []
+				rowOfBattlefieldCoordsGrid = []
 			else:
 				x+=1
 		print('Fields states initialized')
@@ -114,6 +118,22 @@ class CommanderOfTheFleet(CommonProperties):
 		weapon3.shoot()
 		weapon4 = Weapon4()
 		weapon4.shoot()
+
+	def aimAndShoot(self):
+		hitCoords = self.detectFirstHit()
+		print(hitCoords)
+
+	def detectFirstHit(self):
+		x=0
+		y=0
+		for fieldsRow in self.fieldsStates:
+			for field in fieldsRow:
+				if field=='h':
+					return [x, y]
+				x+=1
+			x=0
+			y+=1
+		return False
 
 	def playGame(self):
 		while 1==1 :
@@ -133,6 +153,10 @@ class CommanderOfTheFleet(CommonProperties):
 				self.useSuperWeapons()
 				time.sleep(35)
 				self.updateCurrentSituationInBattlefield()
+				while 1==1:
+					self.aimAndShoot()
+					time.sleep(35)
+					self.updateCurrentSituationInBattlefield()
 				return False
 			except Exception as e:
 				print(e)

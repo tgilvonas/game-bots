@@ -57,7 +57,7 @@ class CommanderOfTheFleet(CommonProperties):
 		self.keyboard.release(self.keyShoot)
 
 	def generateListOfKeysToPlaceShip(self):
-		possibleKeys = [self.keyLeft, self.keyRight, self.keyDown, self.keyUp, self.keyRotate]
+		possibleKeys = [self.keyLeft, self.keyRight, self.keyDown, self.keyUp, self.keyRotate, self.keyRight, self.keyDown]
 		listOfKeys = []
 		i = 1
 		while i <= 10:
@@ -83,27 +83,22 @@ class CommanderOfTheFleet(CommonProperties):
 
 	def initFieldsStates(self):
 		self.fieldsStates = [['u']*12]*8
-		for row in self.fieldsStates:
-			print(row)
 
 	def updateCurrentSituationInBattlefield(self):
 		x=0
-		y=0
+		self.fieldsStates = []
+		rowOfFields = []
 		for field in self.battlefieldCoordsGrid:
-			# y>7 is to prevent fatal error "index out of range", 
-			# but it was also eliminated by defining new scannable screen region,
-			# and fake empty field sprite from weapon indicator is no longer detected
-			if y>7:
-				break
 			for fieldType in self.spritesOfFields.keys():
 				for sprite in self.spritesOfFields[fieldType]:
 					coordsOfDetectedField = pyautogui.locateOnScreen(self.dirOfFieldsSprites + sprite, region=(field[0], field[1], 16, 16))
 					if coordsOfDetectedField != None:
-						self.fieldsStates[y][x] = fieldType[0]
 						print(fieldType[0]+': '+str(field[0])+', '+str(field[1]))
+						rowOfFields.append(fieldType[0])
 			if x>=11:
 				x=0
-				y+=1
+				self.fieldsStates.append(rowOfFields)
+				rowOfFields = []
 			else:
 				x+=1
 		print('Fields states initialized')

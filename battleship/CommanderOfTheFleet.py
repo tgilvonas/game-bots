@@ -100,6 +100,7 @@ class CommanderOfTheFleet(CommonProperties):
 					coordsOfDetectedField = pyautogui.locateOnScreen(self.dirOfFieldsSprites + sprite, region=(field[0], field[1], 16, 16))
 					if coordsOfDetectedField != None:
 						self.fieldsStates[y][x] = fieldType[0]
+						print(fieldType[0]+': '+str(field[0])+', '+str(field[1]))
 			if x>=11:
 				x=0
 				y+=1
@@ -135,6 +136,7 @@ class CommanderOfTheFleet(CommonProperties):
 				time.sleep(5)
 				self.initBattlefieldCoordsGrid()
 				self.useSuperWeapons()
+				time.sleep(35)
 				self.updateCurrentSituationInBattlefield()
 				return False
 			except Exception as e:

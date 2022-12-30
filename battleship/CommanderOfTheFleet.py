@@ -78,14 +78,9 @@ class CommanderOfTheFleet(CommonProperties):
 		coordsOfCrosshair = pyautogui.locateOnScreen(self.initialCrosshairSprite)
 		self.battlefieldCoordsGrid = list(pyautogui.locateAllOnScreen(self.untouchedFieldSprite, region=self.scannableScreenRegionForBattlefield))
 		self.battlefieldCoordsGrid.insert(0, coordsOfCrosshair)
-		for listItem in self.battlefieldCoordsGrid:
-			print(listItem)
-		self.initFieldsStates()
-
-	def initFieldsStates(self):
-		self.fieldsStates = [['u']*12]*8
 
 	def updateCurrentSituationInBattlefield(self):
+		print('Updating current situation in battlefied')
 		x=0
 		self.fieldsStates = []
 		rowOfFields = []
@@ -122,6 +117,36 @@ class CommanderOfTheFleet(CommonProperties):
 	def aimAndShoot(self):
 		hitCoords = self.detectFirstHit()
 		print(hitCoords)
+		if hitCoords != False:
+			targetCoords = self.decideTargetCoords(hitCoords)
+		else:
+			targetCoords = self.selectFieldForNextTarget()
+		print(targetCoords)
+
+	def decideTargetCoords(self, hitCoords):
+		if hitCoords[1]>0 and self.fieldsStates[hitCoords[1]-1][hitCoords[0]]=='u':
+			targetCoords = [hitCoords[0], hitCoords[1]-1]
+		if hitCoords[1]<7 and self.fieldsStates[hitCoords[1]+1][hitCoords[0]]=='u':
+			targetCoords = [hitCoords[0], hitCoords[1]+1]
+		if hitCoords[0]>0 and self.fieldsStates[hitCoords[1]][hitCoords[0]-1]=='u':
+			targetCoords = [hitCoords[0]-1, hitCoords[1]]
+		if hitCoords[0]<11 and self.fieldsStates[hitCoords[1]][hitCoords[0]+1]=='u':
+			targetCoords = [hitCoords[0]+1, hitCoords[1]]
+		return targetCoords
+
+	def selectFieldForNextTarget(self):
+		x=0
+		y=0
+		fs = self.fiedsStates
+		for fieldsRow in self.fieldsStates:
+			for field in fieldsRow:
+				if x>0 and y>0 and x<11 and y<7 and fs[y][x]=='u':
+					if fs[y-1][x] in ['u', 'h', 'm'] and fs[y+1][x] in ['u', 'h', 'm'] and fs[y][x-1] in ['u', 'h', 'm'] and fs[y][x-1] in ['u', 'h', 'm']:
+						return [x, y]
+				x+=1
+			x=0
+			y+=1
+		return False
 
 	def detectFirstHit(self):
 		x=0
@@ -161,5 +186,4 @@ class CommanderOfTheFleet(CommonProperties):
 			except Exception as e:
 				print(e)
 				raise
-				#print(sys.exc_info()[2], 'Sorry I mean line...', traceback.tb_lineno(sys.exc_info()[2]))
 				return False

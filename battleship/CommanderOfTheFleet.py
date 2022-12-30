@@ -35,12 +35,14 @@ class CommanderOfTheFleet(CommonProperties):
 			'untouched.png'
 		],
 		'sunk': [
+			'crosshair-sunk.png',
 			'sunk.png'
 		]
 	}
 	spritesOfCrosshairs = [
 		'crosshair-hit.png',
 		'crosshair-miss.png',
+		'crosshair-sunk.png',
 		'crosshair-untouched.png'
 	]
 

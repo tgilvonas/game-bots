@@ -95,12 +95,12 @@ class CommanderOfTheFleet(CommonProperties):
 			if x>=11:
 				x=0
 				self.fieldsStates.append(rowOfFields)
-				self.normalizedBattlefieldCoordsGrid.append(coordsOfDetectedField)
+				self.normalizedBattlefieldCoordsGrid.append(rowOfBattlefieldCoordsGrid)
 				rowOfFields = []
 				rowOfBattlefieldCoordsGrid = []
 			else:
 				x+=1
-		print('Fields states initialized')
+		print('Fields states updated')
 		for row in self.fieldsStates:
 			print(row)
 
@@ -120,10 +120,50 @@ class CommanderOfTheFleet(CommonProperties):
 		if hitCoords != False:
 			targetCoords = self.decideTargetCoords(hitCoords)
 		else:
-			targetCoords = self.selectFieldForNextTarget()
+			targetCoords = self.selectFieldForNewTarget()
 		print(targetCoords)
+		self.adjustCrosshair(targetCoords)
+		self.pressFire()
+
+	def adjustCrosshair(self, targetCoords):
+		print('Adjusting crosshair')
+		crosshairCords = self.detectCrosshair()
+		while targetCoords[0]!=crosshairCords[0] and targetCoords[1]!=crosshairCords[1]:
+			while targetCoords[0]>crosshairCords[0]:
+				self.pressRight()
+				crosshairCords[0]+=1
+			while targetCoords[0]<crosshairCords[0]:
+				self.pressLeft()
+				crosshairCords[0]-=1
+			while targetCoords[1]>crosshairCords[1]:
+				self.pressDown()
+				crosshairCords[1]+=1
+			while targetCoords[1]<crosshairCords[1]:
+				self.pressUp()
+				crosshairCords[1]-=1
+			crosshairCoords = self.detectCrosshair()
+		return False
+
+	def detectCrosshair(self):
+		print('Detecting crosshair')
+		for crosshairSprite in self.spritesOfCrosshairs:
+			crosshairCoords = pyautogui.locateOnScreen(self.dirOfFieldsSprites+crosshairSprite)
+			if crosshairCoords != None:
+				break
+		print('Finding crosshair in normalized battlefield coords grid')
+		x=0
+		y=0
+		for fieldsRow in self.normalizedBattlefieldCoordsGrid:
+			for field in fieldsRow:
+				if crosshairCoords[0]==field[0] and crosshairCoords[1]==field[1]:
+					return [x, y]
+				x+=1
+			x=0
+			y+=1
+		return False
 
 	def decideTargetCoords(self, hitCoords):
+		print('Deciding target coords')
 		if hitCoords[1]>0 and self.fieldsStates[hitCoords[1]-1][hitCoords[0]]=='u':
 			targetCoords = [hitCoords[0], hitCoords[1]-1]
 		if hitCoords[1]<7 and self.fieldsStates[hitCoords[1]+1][hitCoords[0]]=='u':
@@ -134,7 +174,8 @@ class CommanderOfTheFleet(CommonProperties):
 			targetCoords = [hitCoords[0]+1, hitCoords[1]]
 		return targetCoords
 
-	def selectFieldForNextTarget(self):
+	def selectFieldForNewTarget(self):
+		print('Selecting field for new target')
 		x=0
 		y=0
 		fs = self.fiedsStates
@@ -149,15 +190,18 @@ class CommanderOfTheFleet(CommonProperties):
 		return False
 
 	def detectFirstHit(self):
+		print('Detecting first hit')
 		x=0
 		y=0
 		for fieldsRow in self.fieldsStates:
 			for field in fieldsRow:
 				if field=='h':
+					print('Hit detected')
 					return [x, y]
 				x+=1
 			x=0
 			y+=1
+		print('Hit not detected')
 		return False
 
 	def playGame(self):
@@ -182,8 +226,8 @@ class CommanderOfTheFleet(CommonProperties):
 					self.aimAndShoot()
 					time.sleep(35)
 					self.updateCurrentSituationInBattlefield()
+					self.aimAndShoot()
 				return False
 			except Exception as e:
 				print(e)
-				raise
 				return False

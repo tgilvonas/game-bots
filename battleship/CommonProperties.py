@@ -30,12 +30,27 @@ class CommonProperties:
 		time.sleep(self.durationOfKeyDown)
 		self.keyboard.release(self.keyStartGame)
 
+	def pressUp(self):
+		self.keyboard.press(self.keyUp)
+		time.sleep(self.durationOfKeyDown)
+		self.keyboard.release(self.keyUp)
+
 	def pressDown(self):
 		self.keyboard.press(self.keyDown)
 		time.sleep(self.durationOfKeyDown)
 		self.keyboard.release(self.keyDown)
 
+	def pressLeft(self):
+		self.keyboard.press(self.keyLeft)
+		time.sleep(self.durationOfKeyDown)
+		self.keyboard.release(self.keyLeft)
+
 	def pressRight(self):
 		self.keyboard.press(self.keyRight)
 		time.sleep(self.durationOfKeyDown)
 		self.keyboard.release(self.keyRight)
+
+	def pressFire(self):
+		self.keyboard.press(self.keyShoot)
+		time.sleep(self.durationOfKeyDown)
+		self.keyboard.release(self.keyShoot)

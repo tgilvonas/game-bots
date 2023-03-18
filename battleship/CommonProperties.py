@@ -21,7 +21,8 @@ class CommonProperties:
 	keyRotate='z'
 	keyStartGame='y'
 
-	durationOfKeyDown = 0.02
+	#we must solve problem of key down durations: they vary from context
+	durationOfKeyDown = 0.5
 
 	keyboard = Controller()
 

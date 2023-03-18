@@ -1,5 +1,5 @@
 from pynput.keyboard import Key, Controller
-import pyautogui, os, time
+import pyautogui, os, threading, time
 
 class Racer():
 
@@ -43,6 +43,10 @@ class Racer():
 
 	spriteOfTargetCar = 'target.png'
 
+	# variables to share via threads:
+	leftRoadSide = 0
+	rightRoadSide = 200
+
 	def detectLeftRoadside(self):
 		leftRoadSides = []
 		leftRoadSideToReturn = 82;
@@ -58,7 +62,7 @@ class Racer():
 				print('No left roadsides')
 		else :
 			print('No left roadsides')
-		return leftRoadSideToReturn
+		self.leftRoadSide = leftRoadSideToReturn
 
 	def detectRightRoadSide(self):
 		rightRoadSides = []
@@ -76,7 +80,7 @@ class Racer():
 				print('No right roadsides')
 		else :
 			print('No right roadsides')
-		return rightRoadSideToReturn
+		self.rightRoadSide = rightRoadSideToReturn
 
 	def detectObject(self, sprite):
 		coordinatesOfObject = pyautogui.locateOnScreen(self.spritesDir + sprite, region=self.scannableScreenRegion)
@@ -139,8 +143,8 @@ class Racer():
 			try:
 				keyboard.press(self.keyAccelerate)
 
-				leftRoadSide = self.detectLeftRoadside()
-				rightRoadSide = self.detectRightRoadSide()
+				threading.Thread(target=self.detectLeftRoadside())
+				threading.Thread(target=self.detectRightRoadSide())
 
 				coordinatesOfMe = self.detectObject(self.spriteOfMe)
 
@@ -155,7 +159,7 @@ class Racer():
 				myCarIntersectsWithSlowOrPassiveObjects = self.checkIfObjectIntersectsWithOthers(coordinatesOfMe, slowOrPassiveObjects)
 				if myCarIntersectsWithSlowOrPassiveObjects == True :
 					keyboard.release(self.keyAccelerateMore)
-					whichRoadside = self.detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
+					whichRoadside = self.detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, self.leftRoadSide, self.rightRoadSide)
 					while(self.checkIfObjectIntersectsWithOthers(self.detectObject(self.spriteOfMe), self.detectAGroupOfObjects(self.spritesOfSlowOrPassiveObjects))):
 						if whichRoadside == 'left' :
 							keyboard.press(self.keyRight)
@@ -168,7 +172,7 @@ class Racer():
 				myCarIntersectsWithTrickyCars = self.checkIfObjectIntersectsWithOthers(coordinatesOfMe, trickyCars)
 				if myCarIntersectsWithTrickyCars == True :
 					keyboard.release(self.keyAccelerateMore)
-					whichRoadside = self.detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, leftRoadSide, rightRoadSide)
+					whichRoadside = self.detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, self.leftRoadSide, self.rightRoadSide)
 					while (self.checkIfObjectIntersectsWithOthers(detectObject(self.spriteOfMe), detectAGroupOfObjects(self.spritesOfTrickyCars))) :
 						if whichRoadside == 'left' :
 							keyboard.press(self.keyRight)

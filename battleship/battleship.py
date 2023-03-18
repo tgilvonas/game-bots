@@ -1,5 +1,4 @@
-from pynput.keyboard import Key, Listener, Controller
-import pyautogui, os, time, random
+from pynput.keyboard import Key, Listener
 
 from CommanderOfTheFleet import CommanderOfTheFleet
 from CodeCracker import CodeCracker

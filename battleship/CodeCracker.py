@@ -36,8 +36,13 @@ class CodeCracker(CommonProperties):
 					code = self.convertNumberToCode(i)
 					for codeNumber in code:
 						while pyautogui.locateAllOnScreen(self.dirOfNumbersSprites+'number'+str(codeNumber)+'.png', region=self.scannableScreenRegion) == None:
-							self.pressDown()
-						self.pressRight()
+							self.keyboard.press(self.keyDown)
+							time.sleep(2)
+							self.keyboard.release(self.keyDown)
+							time.sleep(2)
+						self.keyboard.press(self.keyRight)
+						time.sleep(0.02)
+						self.keyboard.release(self.keyRight)
 					self.pressStart()
 					i+=1
 				return False

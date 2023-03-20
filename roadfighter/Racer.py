@@ -14,7 +14,7 @@ class Racer():
 	keyLeft='n'
 	keyRight='m'
 
-	#dimesions of scannable screen region (only for objects on track, and except for our driven red car)
+	#dimesions of scannable screen region
 	scannableScreenRegion = (32, 36, 160, 240)
 
 	spriteOfMe = 'me.png'

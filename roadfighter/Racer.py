@@ -14,7 +14,7 @@ class Racer():
 	keyLeft='n'
 	keyRight='m'
 
-	# dimesions of scannable screen region
+	#dimesions of scannable screen region (only for objects on track, and except for our driven red car)
 	scannableScreenRegion = (32, 36, 160, 240)
 
 	spriteOfMe = 'me.png'
@@ -88,7 +88,7 @@ class Racer():
 	def detectAGroupOfObjects(self, arrayOfSprites):
 		groupOfObjects = []
 		for sprite in arrayOfSprites:
-			groupOfObjects = groupOfObjects + list(pyautogui.locateAllOnScreen(self.spritesDir + sprite, region=self.scannableScreenRegion))
+			groupOfObjects = groupOfObjects + list(pyautogui.locateAllOnScreen(self.spritesDir + sprite, region=self.scannableScreenRegion, grayscale=True))
 		print('Group of objects: ')
 		print(groupOfObjects)
 		return groupOfObjects

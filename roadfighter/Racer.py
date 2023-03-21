@@ -29,7 +29,7 @@ class Racer():
 		'right2.png'
 	]
 
-	spritesOfSlowOrPassiveObjects = [
+	spritesOfPassiveObjects = [
 		'car0.png',
 		'oil.png',
 		'truck.png'
@@ -44,43 +44,45 @@ class Racer():
 	spriteOfTargetCar = 'target.png'
 
 	# variables to share via threads:
-	leftRoadSide = 0
-	rightRoadSide = 200
+	leftRoadside = 0
+	rightRoadside = 200
 
 	def detectLeftRoadside(self):
-		leftRoadSides = []
-		leftRoadSideToReturn = 82;
-		for roadside in self.spritesOfLeftRoadSides:
-			leftRoadSides = leftRoadSides + list(pyautogui.locateAllOnScreen(self.roadsidesDir + roadside, region=self.scannableScreenRegion))
-		if len(leftRoadSides) > 0 :
-			lastLeftRoadSide = leftRoadSides[-1]
-			if len(lastLeftRoadSide) == 4:
-				leftRoadSideToReturn = lastLeftRoadSide[0] + lastLeftRoadSide[2]
-				print('Left roadside: ')
-				print(leftRoadSideToReturn)
+		while True:
+			leftRoadSides = []
+			leftRoadSideToReturn = 82;
+			for roadside in self.spritesOfLeftRoadSides:
+				leftRoadSides = leftRoadSides + list(pyautogui.locateAllOnScreen(self.roadsidesDir + roadside, region=self.scannableScreenRegion))
+			if len(leftRoadSides) > 0 :
+				lastLeftRoadSide = leftRoadSides[-1]
+				if len(lastLeftRoadSide) == 4:
+					leftRoadSideToReturn = lastLeftRoadSide[0] + lastLeftRoadSide[2]
+					#print('Left roadside: ')
+					#print(leftRoadSideToReturn)
+				else :
+					print('No left roadsides')
 			else :
 				print('No left roadsides')
-		else :
-			print('No left roadsides')
-		self.leftRoadSide = leftRoadSideToReturn
+			self.leftRoadside = leftRoadSideToReturn
 
-	def detectRightRoadSide(self):
-		rightRoadSides = []
-		rightRoadSideToReturn = 290
-		for roadside in self.spritesOfRightRoadSides:
-			rightRoadSides = rightRoadSides + list(pyautogui.locateAllOnScreen(self.roadsidesDir + roadside, region=self.scannableScreenRegion))
+	def detectRightRoadside(self):
+		while True:
+			rightRoadSides = []
+			rightRoadSideToReturn = 290
+			for roadside in self.spritesOfRightRoadSides:
+				rightRoadSides = rightRoadSides + list(pyautogui.locateAllOnScreen(self.roadsidesDir + roadside, region=self.scannableScreenRegion))
 
-		if len(rightRoadSides) > 0 :
-			lastRightRoadSide = rightRoadSides[-1]
-			if len(lastRightRoadSide) == 4 :
-				rightRoadSideToReturn = lastRightRoadSide[0]
-				print('Right roadside: ')
-				print(rightRoadSideToReturn)
+			if len(rightRoadSides) > 0 :
+				lastRightRoadSide = rightRoadSides[-1]
+				if len(lastRightRoadSide) == 4 :
+					rightRoadSideToReturn = lastRightRoadSide[0]
+					#print('Right roadside: ')
+					#print(rightRoadSideToReturn)
+				else :
+					print('No right roadsides')
 			else :
 				print('No right roadsides')
-		else :
-			print('No right roadsides')
-		self.rightRoadSide = rightRoadSideToReturn
+			self.rightRoadside = rightRoadSideToReturn
 
 	def detectObject(self, sprite):
 		coordinatesOfObject = pyautogui.locateOnScreen(self.spritesDir + sprite, region=self.scannableScreenRegion)
@@ -139,16 +141,19 @@ class Racer():
 		slowOrPassiveObjects = []
 		trickyCars = []
 
-		while 1==1 :
+		leftRoadsideDetectionThread = threading.Thread(target=self.detectLeftRoadside)
+		rightRoadsideDetectionThread = threading.Thread(target=self.detectRightRoadside)
+
+		leftRoadsideDetectionThread.start()
+		rightRoadsideDetectionThread.start()
+
+		while True :
 			try:
 				keyboard.press(self.keyAccelerate)
 
-				threading.Thread(target=self.detectLeftRoadside())
-				threading.Thread(target=self.detectRightRoadSide())
-
 				coordinatesOfMe = self.detectObject(self.spriteOfMe)
 
-				slowOrPassiveObjects = self.detectAGroupOfObjects(self.spritesOfSlowOrPassiveObjects)
+				passiveObjects = self.detectAGroupOfObjects(self.spritesOfPassiveObjects)
 				trickyCars = self.detectAGroupOfObjects(self.spritesOfTrickyCars)
 
 				coordinatesOfTargetCar = self.detectObject(self.spriteOfTargetCar)
@@ -156,10 +161,10 @@ class Racer():
 				if coordinatesOfMe == None:
 					keyboard.release(self.keyAccelerateMore)
 
-				myCarIntersectsWithSlowOrPassiveObjects = self.checkIfObjectIntersectsWithOthers(coordinatesOfMe, slowOrPassiveObjects)
-				if myCarIntersectsWithSlowOrPassiveObjects == True :
+				myCarIntersectsWithPassiveObjects = self.checkIfObjectIntersectsWithOthers(coordinatesOfMe, passiveObjects)
+				if myCarIntersectsWithPassiveObjects == True :
 					keyboard.release(self.keyAccelerateMore)
-					whichRoadside = self.detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, self.leftRoadSide, self.rightRoadSide)
+					whichRoadside = self.detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, self.leftRoadside, self.rightRoadside)
 					while(self.checkIfObjectIntersectsWithOthers(self.detectObject(self.spriteOfMe), self.detectAGroupOfObjects(self.spritesOfSlowOrPassiveObjects))):
 						if whichRoadside == 'left' :
 							keyboard.press(self.keyRight)
@@ -172,8 +177,8 @@ class Racer():
 				myCarIntersectsWithTrickyCars = self.checkIfObjectIntersectsWithOthers(coordinatesOfMe, trickyCars)
 				if myCarIntersectsWithTrickyCars == True :
 					keyboard.release(self.keyAccelerateMore)
-					whichRoadside = self.detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, self.leftRoadSide, self.rightRoadSide)
-					while (self.checkIfObjectIntersectsWithOthers(detectObject(self.spriteOfMe), detectAGroupOfObjects(self.spritesOfTrickyCars))) :
+					whichRoadside = self.detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, self.leftRoadside, self.rightRoadside)
+					while (self.checkIfObjectIntersectsWithOthers(self.detectObject(self.spriteOfMe), self.detectAGroupOfObjects(self.spritesOfTrickyCars))) :
 						if whichRoadside == 'left' :
 							keyboard.press(self.keyRight)
 						else :
@@ -185,4 +190,6 @@ class Racer():
 				#	keyboard.press(self.keyAccelerateMore)
 
 			except Exception as e:
+				leftRoadsideDetectionThread.join()
+				rightRoadsideDetectionThread.join()
 				print(e)

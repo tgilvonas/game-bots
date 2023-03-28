@@ -22,7 +22,8 @@ class CommonProperties:
 	keyStartGame='y'
 
 	#we must solve problem of key down durations: they vary from context
-	durationOfKeyDown = 0.5
+	durationOfKeyDown = 0.2
+	otherDurationOfKeyDown = 0.05
 
 	keyboard = Controller()
 
@@ -33,12 +34,12 @@ class CommonProperties:
 
 	def pressUp(self):
 		self.keyboard.press(self.keyUp)
-		time.sleep(self.durationOfKeyDown)
+		time.sleep(self.otherDurationOfKeyDown)
 		self.keyboard.release(self.keyUp)
 
 	def pressDown(self):
 		self.keyboard.press(self.keyDown)
-		time.sleep(self.durationOfKeyDown)
+		time.sleep(self.otherDurationOfKeyDown)
 		self.keyboard.release(self.keyDown)
 
 	def pressLeft(self):

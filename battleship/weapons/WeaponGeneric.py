@@ -14,8 +14,8 @@ class WeaponGeneric:
 	keySelect='b'
 	keyShoot='x'
 
-	pressReleaseDelay = 3
-	delayAfterCrosshairMovement = 7
+	pressReleaseDelay = 2
+	delayAfterCrosshairMovement = 5
 
 	keyboard = Controller()
 

@@ -44,12 +44,12 @@ class CommonProperties:
 
 	def pressLeft(self):
 		self.keyboard.press(self.keyLeft)
-		time.sleep(self.durationOfKeyDown)
+		time.sleep(self.otherDurationOfKeyDown)
 		self.keyboard.release(self.keyLeft)
 
 	def pressRight(self):
 		self.keyboard.press(self.keyRight)
-		time.sleep(self.durationOfKeyDown)
+		time.sleep(self.otherDurationOfKeyDown)
 		self.keyboard.release(self.keyRight)
 
 	def pressFire(self):

@@ -207,7 +207,7 @@ class CommanderOfTheFleet(CommonProperties):
 		return False
 
 	def playGame(self):
-		while 1==1 :
+		while True :
 			try:
 				while self.detectMenu() == None:
 					print('Detecting game menu...')
@@ -226,9 +226,8 @@ class CommanderOfTheFleet(CommonProperties):
 				self.updateCurrentSituationInBattlefield()
 				while 1==1:
 					self.aimAndShoot()
-					time.sleep(35)
+					time.sleep(30)
 					self.updateCurrentSituationInBattlefield()
-					self.aimAndShoot()
 				return False
 			except Exception as e:
 				print(e)

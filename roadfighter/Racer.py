@@ -165,7 +165,7 @@ class Racer():
 				if myCarIntersectsWithPassiveObjects == True :
 					keyboard.release(self.keyAccelerateMore)
 					whichRoadside = self.detectOnWhichSideOfTheRoadIAm(coordinatesOfMe, self.leftRoadside, self.rightRoadside)
-					while(self.checkIfObjectIntersectsWithOthers(self.detectObject(self.spriteOfMe), self.detectAGroupOfObjects(self.spritesOfSlowOrPassiveObjects))):
+					while(self.checkIfObjectIntersectsWithOthers(self.detectObject(self.spriteOfMe), self.detectAGroupOfObjects(self.spritesOfPassiveObjects))):
 						if whichRoadside == 'left' :
 							keyboard.press(self.keyRight)
 						else :

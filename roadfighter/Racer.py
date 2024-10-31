@@ -5,7 +5,7 @@ class Racer():
 
 	scriptPath = os.path.dirname(__file__)
 
-	spritesDir = scriptPath + '/sprites/'
+	spritesDir = scriptPath + '/sprites-optimized/'
 	roadsidesDir = spritesDir + 'roadsides/'
 
 	#keys:
@@ -38,10 +38,13 @@ class Racer():
 	spritesOfTrickyCars = [
 		'car1.png',
 		'car2.png',
-		'car3.png'
+		'car3.png',
+		'car4.png'
 	]
 
 	spriteOfTargetCar = 'target.png'
+
+	lengthOfRoadObjects = 32
 
 	def detectLeftRoadside(self):
 		leftRoadSides = []

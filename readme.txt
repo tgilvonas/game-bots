@@ -12,6 +12,8 @@ To make scripts working:
 7. Set focus on emulator window and start the game;
 8. Enjoy the action and laugh at dummy game bots :)
 
+Please keep in mind that it works only in your main monitor, not on additional monitor.
+
 Equivalents of gamepad keys:
 Button "B" - computer keyboard key 'z'
 Button "B Turbo" - computer keyboard key 'a'
